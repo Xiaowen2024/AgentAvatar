@@ -17,7 +17,7 @@ public class ElevenLabsAPIManager : MonoBehaviour
     [SerializeField]
     private string _voiceId;
     [SerializeField]
-    private string _apiKey = "sk_9b70f719d7e9048c9339da28c6e459e7f8614d13964bfc1b";
+    private string _apiKey = "apikey";
     [SerializeField]
     private string _apiUrl = "https://api.elevenlabs.io/v1/text-to-speech/21m00Tcm4TlvDq8ikWAM/stream";
 

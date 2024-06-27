@@ -12,7 +12,7 @@ using UnityEngine.Windows.WebCam;
 public class VisionModel : MonoBehaviour
 {
     [SerializeField] private string openAIUrl = "https://api.openai.com/v1/chat/completions";
-    [SerializeField] private string apiKey = "sk-proj-WQQGfls7Glf8EzP5skoWT3BlbkFJb0Ved8WcYfsE9du6hVgV"; 
+    [SerializeField] private string apiKey = "apikey"; 
 
     public List<string> imageUrls = new List<string>();
     public string queryMessage = "What's the gesture of the wooden puppet in the image? Choose one of the options: standing still, walking, waving hands, raising hands up, raising hands to the sides. ";
