@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "557524989080",
+    "project_id": "visionavatar-bad3f",
+    "storage_bucket": "visionavatar-bad3f.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:557524989080:android:465a4ea6c659ddebb40ced",
+        "android_client_info": {
+          "package_name": "com.DefaultCompany.VisionAvatar"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD-Sk9eM7dLIEEHtF8ChATW4fIDUVvhp00"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
