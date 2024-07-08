@@ -74,7 +74,7 @@
 // import { createRequire } from 'module';
 const express = require("express");
 const socket = require("socket.io");
-import { TextInput } from './textInput';
+import { TextInput, createTextInput } from './textInput';
 const { SerializedTextInput } = require("./textInput");
 
 const PORT = 8080;
@@ -98,9 +98,11 @@ io.on("connection", function (socket) {
           console.log("Data received:", JSON.stringify(data["Json"]));  
           const deserializedData: SerializedTextInput[] = JSON.parse(data["Json"]);
           deserializedData.forEach(item => {
-            const serializedTextInput = new TextInput(item as SerializedTextInput);
+            // const serializedTextInput : SerializedTextInput = new TextInput(item as SerializedTextInput);
+            createTextInput(item);
             console.log("Text input data received:", JSON.stringify(serializedTextInput));
           });
+   
           
         }
         else if (typeof data == 'string') {
