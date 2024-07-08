@@ -36,7 +36,7 @@ public class NetworkManager : MonoBehaviour
             Debug.Log("Connected to server");
             RequestEmotionLabel("EmotionRequest");
             string emotionLabel = ReceiveEmotionLabel();
-            EventHandler.OnEmotionReceived.Invoke(emotionLabel);
+            // EventHandler.OnEmotionReceived.Invoke(emotionLabel);
             Debug.Log("Received emotion label: " + emotionLabel);
             stream.Close();
             client.Close();

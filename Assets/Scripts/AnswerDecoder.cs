@@ -48,7 +48,7 @@ public class AnswerDecoder
         public int total_tokens;
     }
 
-    public static void ParseResponse(string jsonResponse)
+    public void ParseResponse(string jsonResponse)
     {
         chatCompletion response = JsonUtility.FromJson<chatCompletion>(jsonResponse);
 
@@ -64,7 +64,7 @@ public class AnswerDecoder
     }
 
     // Method to get the content
-    public static string GetContent()
+    public string GetContent()
     {
         return responseContent;
     }

@@ -14,13 +14,15 @@ import { SerializedTextInput, TextInput } from "./textInput";
 export class TextInput {
   id: GameId<'textinput'>;
   creator: GameId<'players'>;
+  user: GameId<'users'>;
   created: string;
   input: string;
 
   constructor(serialized: SerializedTextInput) {
-      const { id, creator, created, input } = serialized;
+      const { id, creator, created, input, user } = serialized;
       this.id = parseGameId('textinput', id);
       this.creator = parseGameId('players', creator);
+      this.user = parseGameId('users', user);
       this.created = created;
       this.input = input;
   }
@@ -29,6 +31,7 @@ export class TextInput {
 export const serializedTextInput = {
   id: v.string(),
   creator: v.string(),
+  user: v.string(),
   created: v.string(),
   input: v.string(),
 };

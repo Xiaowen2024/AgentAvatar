@@ -7,7 +7,7 @@ public class AvatarController : MonoBehaviour
 {
     void Start()
     {
-        EventHandler.OnEmotionReceived.AddListener(UpdateAvatarEmotion);
+        // EventHandler.OnEmotionReceived.AddListener(UpdateAvatarEmotion);
     }
 
     private void UpdateAvatarEmotion(string EmotionLabel)

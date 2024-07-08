@@ -100,8 +100,8 @@ public class VisionModel : MonoBehaviour
         if (response != null)
         {
             Debug.Log("Response: " + response);
-            AnswerDecoder.ParseResponse(response);
-            Debug.Log(AnswerDecoder.GetContent());
+            AnswerDecoder answerDecoder = new AnswerDecoder();
+            answerDecoder.ParseResponse(response);
         }
     }
 
