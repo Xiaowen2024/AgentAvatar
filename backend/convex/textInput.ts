@@ -29,7 +29,7 @@ export class TextInput {
   input: string;
 
   constructor(serialized: SerializedTextInput) {
-      const { id, creator, created } = serialized;
+      const { id, creator, created, input } = serialized;
       this.id = parseGameId('textinput', id);
       this.creator = parseGameId('players', creator);
       this.created = created;
@@ -43,7 +43,9 @@ export const serializedTextInput = {
   created: v.string(),
   input: v.string(),
 };
+
 export type SerializedTextInput = ObjectType<typeof serializedTextInput>;
+
 
 export const create = mutation({
   args: { textInput: v.object(serializedTextInput) },

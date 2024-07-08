@@ -18,6 +18,7 @@ import type * as client from "../client.js";
 import type * as conversation from "../conversation.js";
 import type * as conversationMembership from "../conversationMembership.js";
 import type * as ids from "../ids.js";
+import type * as index from "../index.js";
 import type * as textInput from "../textInput.js";
 import type * as util_FastIntegerCompression from "../util/FastIntegerCompression.js";
 import type * as util_assertNever from "../util/assertNever.js";
@@ -45,6 +46,7 @@ declare const fullApi: ApiFromModules<{
   conversation: typeof conversation;
   conversationMembership: typeof conversationMembership;
   ids: typeof ids;
+  index: typeof index;
   textInput: typeof textInput;
   "util/FastIntegerCompression": typeof util_FastIntegerCompression;
   "util/assertNever": typeof util_assertNever;
