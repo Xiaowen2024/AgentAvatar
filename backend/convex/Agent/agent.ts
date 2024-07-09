@@ -22,7 +22,7 @@ export class baseKnowledge {
     age: number;
     gender: Gender;
     ethnicity: Ethnicity;
-    selfDescription: string;
+    selfDescription: string; // core description about this agent such as base memory 
 
     constructor(age: number, gender: Gender, ethnicity: Ethnicity, selfDescription: string) {
         this.age = age;
