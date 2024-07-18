@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <projectSettings>
   <projectSetting name="Google.IOSResolver.VerboseLoggingEnabled" value="False" />
+<<<<<<< Updated upstream
   <projectSetting name="Google.PackageManagerResolver.VerboseLoggingEnabled" value="False" />
+=======
+>>>>>>> Stashed changes
   <projectSetting name="Google.VersionHandler.VerboseLoggingEnabled" value="False" />
 </projectSettings>
