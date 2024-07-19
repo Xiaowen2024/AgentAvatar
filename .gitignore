@@ -80,3 +80,4 @@ Library/Artifacts/7a/7a0fa04fb269910625df00f7c4c73f7f
 Library/PackageCache/com.unity.burst@1.8.13/Run/libburst-llvm-16.dylib
 
 
+*.so
