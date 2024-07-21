@@ -54,6 +54,6 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["**/*.ts", "**/*.tsx", "**/*.js", "postcss.config.js"],
+  "include": ["src/**/*"],
   "exclude": ["node_modules"]
 }

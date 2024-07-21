@@ -1,13 +1,12 @@
-import { GameId } from '../ids';
 import { Id } from '../_generated/dataModel';
-import { Agent, SerializedAgent, serializedAgent } from './agent.js';
-// import { saveConversationMemory } from './conversationMemory.js';
-import { chatCompletion } from '../util/llm';
-import * as embeddingsCache from './embeddingsCache';
 import { ActionCtx, internalQuery } from '../_generated/server';
+import { LLMMessage, chatCompletion } from '../util/llm';
 import { api, internal } from '../_generated/api';
-import * as memory from './memory';
+import { GameId, conversationId, playerId } from '../ids';
 import { NUM_MEMORIES_TO_SEARCH } from '../constants';
+import * as memory from './memory';
+import * as embeddingsCache from './embeddingsCache.ts';
+
 
 const selfInternal = internal.agent.conversation;
 
@@ -72,7 +71,7 @@ function agentPrompts(
   agent: { identity: string; plan: string } | null,
   otherAgent: { identity: string; plan: string } | null,
 ): string[] {
-  const prompt = [];
+  const prompt: string[] = [];
   if (agent) {
     prompt.push(`About you: ${agent.identity}`);
     prompt.push(`Your goals for the conversation: ${agent.plan}`);
@@ -87,7 +86,7 @@ function previousConversationPrompt(
   otherPlayer: { name: string },
   conversation: { created: number } | null,
 ): string[] {
-  const prompt = [];
+  const prompt: string[] = [];
   if (conversation) {
     const prev = new Date(conversation.created);
     const now = new Date();
@@ -101,7 +100,7 @@ function previousConversationPrompt(
 }
 
 function relatedMemoriesPrompt(memories: memory.Memory[]): string[] {
-  const prompt = [];
+  const prompt: string[] = [];
   if (memories.length > 0) {
     prompt.push(`Here are some related memories in decreasing relevance order:`);
     for (const memory of memories) {

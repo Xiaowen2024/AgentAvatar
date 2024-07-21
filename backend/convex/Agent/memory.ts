@@ -8,6 +8,7 @@ import { GameId, agentId, conversationId, playerId } from '../ids';
 import { SerializedPlayer } from '../player';
 import { semanticMemoryFields, episodicMemoryFields, proceduralMemoryFields, textualWorkingMemoryFields, visualWorkingMemoryFields } from './schema';
 
+
 // How long to wait before updating a memory's last access time.
 export const MEMORY_ACCESS_THROTTLE = 300_000; // In ms
 // We fetch 10x the number of memories by relevance, to have more candidates
