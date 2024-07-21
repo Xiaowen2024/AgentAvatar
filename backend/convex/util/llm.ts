@@ -657,3 +657,5 @@ export async function ollamaFetchEmbedding(text: string) {
   });
   return { embedding: result };
 }
+
+

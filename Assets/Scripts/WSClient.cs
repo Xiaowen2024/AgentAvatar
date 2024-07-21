@@ -8,7 +8,11 @@ using Newtonsoft.Json.Linq;
 
 public class WSClient : MonoBehaviour
 {
+
+    public static WSClient Instance { get; private set; }
     public SocketIOUnity socket;
+    public event Action OnCaptureAndUploadRequest;
+
     void Start()
     {
         var uri = new Uri("http://localhost:8080");
@@ -51,21 +55,26 @@ public class WSClient : MonoBehaviour
         // {
         //     ReceivedText.text += "Received On " + name + " : " + response.GetValue().GetRawText() + "\n";
         // });
+
+
+        socket.On("capture_and_upload", (response) =>
+        {
+            OnCaptureAndUploadRequest?.Invoke();
+        });
     }
 
-    // public void EmitTest()
-    // {
-    //     string eventName = EventNameTxt.text.Trim().Length < 1 ? "hello" : EventNameTxt.text;
-    //     string txt = DataTxt.text;
-    //     if (!IsJSON(txt))
-    //     {
-    //         socket.Emit(eventName, txt);
-    //     }
-    //     else
-    //     {
-    //         socket.EmitStringAsJSON(eventName, txt);
-    //     }
-    // }
+    
+    public void Emit(string eventName, string data)
+    {
+        if (socket == null)
+        {
+            Debug.LogError("Socket is null. Make sure it's initialized before calling Emit.");
+            return;
+        }
+        socket.Emit(eventName, data);
+    }
+
+
 
     void Update()
     {
