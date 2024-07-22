@@ -660,7 +660,26 @@ export async function ollamaFetchEmbedding(text: string) {
 
 import axios from 'axios';
 
-export async function chatCompletion(params: { model: string; messages: { role: string; content: string }[]; max_tokens: number }) {
+export interface ChatCompletionParams {
+  model: string;
+  messages: { role: string; content: string }[];
+  max_tokens: number;
+  stop?: string[];
+}
+
+
+export interface visualQueryParams {
+  model: string;
+  messages: { role: string; content: 
+    { type: string; text: string } | 
+    { type: string; image_url: { url: string } }
+   }[];
+  max_tokens: number;
+  stop?: string[];
+}
+
+
+export async function chatCompletion(params: ChatCompletionParams ) {
   try {
     const response = await axios.post(
       'https://api.openai.com/v1/chat/completions',
@@ -668,6 +687,7 @@ export async function chatCompletion(params: { model: string; messages: { role: 
         model: params.model,
         messages: params.messages,
         max_tokens: params.max_tokens,
+        stop: params.stop
       },
       {
         headers: {

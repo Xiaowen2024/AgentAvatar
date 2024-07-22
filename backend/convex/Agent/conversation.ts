@@ -52,16 +52,16 @@ export async function startConversationMessage(
   }
   prompt.push(`${player.name}:`);
 
-  const { content } = await chatCompletion({
-    messages: [
-      {
-        role: 'user',
-        content: prompt.join('\n'),
-      },
+  const params = {
+    model: "gpt-4",
+     messages: [
+        { role: 'user', content: prompt.join('\n') }
     ],
-    max_tokens: 300,
-    stop: stopWords(otherPlayer.name, player.name),
-  });
+  max_tokens: 50,
+  stop: stopWords(otherPlayer.name, player.name),
+  };
+
+  const { content } = await chatCompletion(params);
   return content;
 }
 

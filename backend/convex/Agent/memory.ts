@@ -337,7 +337,6 @@ async function reflectOnMemories(
     },
   );
 
-  // should only reflect if lastest 100 items have importance score of >500
   const sumOfImportanceScore = memories
     .filter((m) => m._creationTime > (lastReflectionTs ?? 0))
     .reduce((acc, curr) => acc + curr.importance, 0);
