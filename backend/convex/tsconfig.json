@@ -28,18 +28,49 @@
 //   "exclude": ["./_generated"]
 // }
 
+// {
+//   "compilerOptions": {
+//     "target": "es2015",
+//     "lib": ["dom", "dom.iterable", "esnext"],
+//     "tsBuildInfoFile": "./tmp/tsconfig.tsbuildinfo",
+//     "allowJs": true,
+//     "skipLibCheck": true,
+//     "strict": true,
+//     "forceConsistentCasingInFileNames": true,
+//     "noEmit": true,
+//     "esModuleInterop": true,
+//     "module": "ESNext",
+//     "moduleResolution": "node",
+//     "resolveJsonModule": true,
+//     "isolatedModules": true,
+//     "jsx": "preserve",
+//     "incremental": true,
+//     "allowImportingTsExtensions": true,
+//     "plugins": [
+//       {
+//         "name": "next"
+//       }
+//     ],
+//     "paths": {
+//       "@/*": ["./src/*"]
+//     }, 
+//     "types": ["jest"]
+//   },
+//   "include": ["src/**/*"],
+//   "exclude": ["node_modules"]
+// }
+
 {
   "compilerOptions": {
     "target": "es2015",
     "lib": ["dom", "dom.iterable", "esnext"],
-    
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
     "forceConsistentCasingInFileNames": true,
     "noEmit": true,
     "esModuleInterop": true,
-    "module": "commonjs",
+    "module": "esnext",
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "isolatedModules": true,
@@ -53,9 +84,8 @@
     ],
     "paths": {
       "@/*": ["./src/*"]
-    }, 
-    "types": ["jest"]
+    }
   },
-  "include": ["src/**/*"],
+  "include": [],
   "exclude": ["node_modules"]
 }

@@ -72,45 +72,45 @@
 // const TextInput = require("./textInput");
 
 // import { createRequire } from 'module';
-const express = require("express");
-const socket = require("socket.io");
-import { TextInput, createTextInput } from './textInput';
-const { SerializedTextInput } = require("./textInput");
+// const express = require("express");
+// const socket = require("socket.io");
+// import { TextInput, createTextInput } from './textInput';
+// const { SerializedTextInput } = require("./textInput");
 
-const PORT = 8080;
-const app = express();
-const server = app.listen(PORT, function () {
-  console.log(`Listening on port ${PORT}`);
-  console.log(`http://localhost:${PORT}`);
-});
+// const PORT = 8080;
+// const app = express();
+// const server = app.listen(PORT, function () {
+//   console.log(`Listening on port ${PORT}`);
+//   console.log(`http://localhost:${PORT}`);
+// });
 
-app.use(express.static("public"));
+// app.use(express.static("public"));
 
-const io = socket(server);
+// const io = socket(server);
 
-io.on("connection", function (socket) {
-  console.log("Made socket connection");
+// io.on("connection", function (socket) {
+//   console.log("Made socket connection");
   
-  socket.on("message", function (data) {
-      try {
-        // check if data is of json format 
-        if (typeof data == 'object') {
-          console.log("Data received:", JSON.stringify(data["Json"]));  
-          const deserializedData: SerializedTextInput[] = JSON.parse(data["Json"]);
-          deserializedData.forEach(item => {
-            // const serializedTextInput : SerializedTextInput = new TextInput(item as SerializedTextInput);
-            createTextInput(item);
-            console.log("Text input data received:", JSON.stringify(serializedTextInput));
-          });
+//   socket.on("message", function (data) {
+//       try {
+//         // check if data is of json format 
+//         if (typeof data == 'object') {
+//           console.log("Data received:", JSON.stringify(data["Json"]));  
+//           const deserializedData: SerializedTextInput[] = JSON.parse(data["Json"]);
+//           deserializedData.forEach(item => {
+//             // const serializedTextInput : SerializedTextInput = new TextInput(item as SerializedTextInput);
+//             createTextInput(item);
+//             console.log("Text input data received:", JSON.stringify(serializedTextInput));
+//           });
    
           
-        }
-        else if (typeof data == 'string') {
-            console.log("Data received:", data);
-        }
+//         }
+//         else if (typeof data == 'string') {
+//             console.log("Data received:", data);
+//         }
 
-      } catch (error) {
-          console.error("Error processing message:", error);
-      }
-  });
-});
+//       } catch (error) {
+//           console.error("Error processing message:", error);
+//       }
+//   });
+// });

@@ -1,4 +1,5 @@
-import { GameId, parseGameId, textinputId, playerId, conversationId} from './ids.js';
+import { GameId, parseGameId, textinputId, playerId, conversationId} from '../ids';
+import { ObjectType } from 'convex/values';
 
 export class ConversationMemory {
     id: GameId<'conversations'>;

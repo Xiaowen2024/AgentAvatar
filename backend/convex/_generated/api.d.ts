@@ -14,15 +14,36 @@ import type {
   FilterApi,
   FunctionReference,
 } from "convex/server";
+import type * as Agent_agent from "../Agent/agent.js";
+import type * as Agent_conversation from "../Agent/conversation.js";
+import type * as Agent_conversationMemory from "../Agent/conversationMemory.js";
+import type * as Agent_embeddingsCache from "../Agent/embeddingsCache.js";
+import type * as Agent_memory from "../Agent/memory.js";
 import type * as client from "../client.js";
+import type * as constants from "../constants.js";
 import type * as conversation from "../conversation.js";
 import type * as conversationMembership from "../conversationMembership.js";
-import type * as conversationMembership from "../conversationMembership.js";
-import type * as ids from "..../wsserver.js
+import type * as game from "../game.js";
 import type * as ids from "../ids.js";
-import type * as index from "../index.js";
+import type * as playerDescription from "../playerDescription.js";
+import type * as testing from "../testing.js";
+import type * as tests_testChat from "../tests/testChat.js";
+import type * as tests_testConversations from "../tests/testConversations.js";
+import type * as tests_testVision from "../tests/testVision.js";
 import type * as textInput from "../textInput.js";
-import type * as textInput from "../textInput.js";
+import type * as tsconfig from "../tsconfig.js";
+import type * as util_FastIntegerCompression from "../util/FastIntegerCompression.js";
+import type * as util_assertNever from "../util/assertNever.js";
+import type * as util_asyncMap from "../util/asyncMap.js";
+import type * as util_compression from "../util/compression.js";
+import type * as util_geometry from "../util/geometry.js";
+import type * as util_isSimpleObject from "../util/isSimpleObject.js";
+import type * as util_llm from "../util/llm.js";
+import type * as util_minheap from "../util/minheap.js";
+import type * as util_object from "../util/object.js";
+import type * as util_sleep from "../util/sleep.js";
+import type * as util_types from "../util/types.js";
+import type * as util_xxhash from "../util/xxhash.js";
 
 /**
  * A utility for referencing Convex functions in your app's API.
@@ -33,15 +54,36 @@ import type * as textInput from "../textInput.js";
  * ```
  */
 declare const fullApi: ApiFromModules<{
+  "Agent/agent": typeof Agent_agent;
+  "Agent/conversation": typeof Agent_conversation;
+  "Agent/conversationMemory": typeof Agent_conversationMemory;
+  "Agent/embeddingsCache": typeof Agent_embeddingsCache;
+  "Agent/memory": typeof Agent_memory;
   client: typeof client;
+  constants: typeof constants;
   conversation: typeof conversation;
   conversationMembership: typeof conversationMembership;
-  conversationMembership: typeof conversationMembership;
+  game: typeof game;
   ids: typeof ids;
-  ids: typeof ids;
-  index: typeof index;
+  playerDescription: typeof playerDescription;
+  testing: typeof testing;
+  "tests/testChat": typeof tests_testChat;
+  "tests/testConversations": typeof tests_testConversations;
+  "tests/testVision": typeof tests_testVision;
   textInput: typeof textInput;
-  textInput: typeof textInput;
+  tsconfig: typeof tsconfig;
+  "util/FastIntegerCompression": typeof util_FastIntegerCompression;
+  "util/assertNever": typeof util_assertNever;
+  "util/asyncMap": typeof util_asyncMap;
+  "util/compression": typeof util_compression;
+  "util/geometry": typeof util_geometry;
+  "util/isSimpleObject": typeof util_isSimpleObject;
+  "util/llm": typeof util_llm;
+  "util/minheap": typeof util_minheap;
+  "util/object": typeof util_object;
+  "util/sleep": typeof util_sleep;
+  "util/types": typeof util_types;
+  "util/xxhash": typeof util_xxhash;
 }>;
 export declare const api: FilterApi<
   typeof fullApi,

@@ -269,7 +269,7 @@ async function calculateImportance(description: string) {
   return importance;
 }
 
-const { embeddingId: _embeddingId, ...memoryFieldsWithoutEmbeddingId } = memoryFields;
+const { embeddingId: _embeddingId, ...memoryFieldsWithoutEmbeddingId } = semanticMemoryFields;
 
 export const insertMemory = internalMutation({
   args: {
@@ -359,14 +359,18 @@ async function reflectOnMemories(
     'Example: [{insight: "...", statementIds: [1,2]}, {insight: "...", statementIds: [1]}, ...]',
   );
 
-  const { content: reflection } = await chatCompletion({
+  const params = {
+    model: 'gpt-4o',  
     messages: [
       {
         role: 'user',
         content: prompt.join('\n'),
       },
     ],
-  });
+    max_tokens: 100
+  };
+
+  const { content: reflection } = await chatCompletion(params);
 
   try {
     const insights = JSON.parse(reflection) as { insight: string; statementIds: number[] }[];
@@ -446,5 +450,5 @@ export async function latestMemoryOfType<T extends MemoryType>(
     .order('desc')
     .first();
   if (!entry) return null;
-  return entry as MemoryOfType<T>;
+  return entry as unknown as MemoryOfType<T>;
 }
