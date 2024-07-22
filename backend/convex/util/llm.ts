@@ -58,77 +58,77 @@ const AuthHeaders = (): Record<string, string> =>
     : {};
 
 // Overload for non-streaming
-export async function chatCompletion(
-  body: Omit<CreateChatCompletionRequest, 'model'> & {
-    model?: CreateChatCompletionRequest['model'];
-  } & {
-    stream?: false | null | undefined;
-  },
-): Promise<{ content: string; retries: number; ms: number }>;
-// Overload for streaming
-export async function chatCompletion(
-  body: Omit<CreateChatCompletionRequest, 'model'> & {
-    model?: CreateChatCompletionRequest['model'];
-  } & {
-    stream?: true;
-  },
-): Promise<{ content: ChatCompletionContent; retries: number; ms: number }>;
-export async function chatCompletion(
-  body: Omit<CreateChatCompletionRequest, 'model'> & {
-    model?: CreateChatCompletionRequest['model'];
-  },
-) {
-  assertApiKey();
-  // OLLAMA_MODEL is legacy
-  body.model =
-    body.model ?? process.env.LLM_MODEL ?? process.env.OLLAMA_MODEL ?? LLM_CONFIG.chatModel;
-  const stopWords = body.stop ? (typeof body.stop === 'string' ? [body.stop] : body.stop) : [];
-  if (LLM_CONFIG.stopWords) stopWords.push(...LLM_CONFIG.stopWords);
-  console.log(body);
-  const {
-    result: content,
-    retries,
-    ms,
-  } = await retryWithBackoff(async () => {
-    const result = await fetch(apiUrl('/v1/chat/completions'), {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        ...AuthHeaders(),
-      },
+// export async function chatCompletion(
+//   body: Omit<CreateChatCompletionRequest, 'model'> & {
+//     model?: CreateChatCompletionRequest['model'];
+//   } & {
+//     stream?: false | null | undefined;
+//   },
+// ): Promise<{ content: string; retries: number; ms: number }>;
+// // Overload for streaming
+// export async function chatCompletion(
+//   body: Omit<CreateChatCompletionRequest, 'model'> & {
+//     model?: CreateChatCompletionRequest['model'];
+//   } & {
+//     stream?: true;
+//   },
+// ): Promise<{ content: ChatCompletionContent; retries: number; ms: number }>;
+// export async function chatCompletion(
+//   body: Omit<CreateChatCompletionRequest, 'model'> & {
+//     model?: CreateChatCompletionRequest['model'];
+//   },
+// ) {
+//   assertApiKey();
+//   // OLLAMA_MODEL is legacy
+//   body.model =
+//     body.model ?? process.env.LLM_MODEL ?? process.env.OLLAMA_MODEL ?? LLM_CONFIG.chatModel;
+//   const stopWords = body.stop ? (typeof body.stop === 'string' ? [body.stop] : body.stop) : [];
+//   if (LLM_CONFIG.stopWords) stopWords.push(...LLM_CONFIG.stopWords);
+//   console.log(body);
+//   const {
+//     result: content,
+//     retries,
+//     ms,
+//   } = await retryWithBackoff(async () => {
+//     const result = await fetch(apiUrl('/v1/chat/completions'), {
+//       method: 'POST',
+//       headers: {
+//         'Content-Type': 'application/json',
+//         ...AuthHeaders(),
+//       },
 
-      body: JSON.stringify(body),
-    });
-    if (!result.ok) {
-      const error = await result.text();
-      console.error({ error });
-      if (result.status === 404 && LLM_CONFIG.ollama) {
-        await tryPullOllama(body.model!, error);
-      }
-      throw {
-        retry: result.status === 429 || result.status >= 500,
-        error: new Error(`Chat completion failed with code ${result.status}: ${error}`),
-      };
-    }
-    if (body.stream) {
-      return new ChatCompletionContent(result.body!, stopWords);
-    } else {
-      const json = (await result.json()) as CreateChatCompletionResponse;
-      const content = json.choices[0].message?.content;
-      if (content === undefined) {
-        throw new Error('Unexpected result from OpenAI: ' + JSON.stringify(json));
-      }
-      console.log(content);
-      return content;
-    }
-  });
+//       body: JSON.stringify(body),
+//     });
+//     if (!result.ok) {
+//       const error = await result.text();
+//       console.error({ error });
+//       if (result.status === 404 && LLM_CONFIG.ollama) {
+//         await tryPullOllama(body.model!, error);
+//       }
+//       throw {
+//         retry: result.status === 429 || result.status >= 500,
+//         error: new Error(`Chat completion failed with code ${result.status}: ${error}`),
+//       };
+//     }
+//     if (body.stream) {
+//       return new ChatCompletionContent(result.body!, stopWords);
+//     } else {
+//       const json = (await result.json()) as CreateChatCompletionResponse;
+//       const content = json.choices[0].message?.content;
+//       if (content === undefined) {
+//         throw new Error('Unexpected result from OpenAI: ' + JSON.stringify(json));
+//       }
+//       console.log(content);
+//       return content;
+//     }
+//   });
 
-  return {
-    content,
-    retries,
-    ms,
-  };
-}
+//   return {
+//     content,
+//     retries,
+//     ms,
+//   };
+// }
 
 export async function tryPullOllama(model: string, error: string) {
   if (error.includes('try pulling')) {
@@ -658,4 +658,50 @@ export async function ollamaFetchEmbedding(text: string) {
   return { embedding: result };
 }
 
+import axios from 'axios';
 
+export async function chatCompletion(params: { model: string; messages: { role: string; content: string }[]; max_tokens: number }) {
+  try {
+    const response = await axios.post(
+      'https://api.openai.com/v1/chat/completions',
+      {
+        model: params.model,
+        messages: params.messages,
+        max_tokens: params.max_tokens,
+      },
+      {
+        headers: {
+          'Authorization': `Bearer YOUR_OPENAI_API_KEY`,
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Error calling OpenAI API:', error.response ? error.response.data : error.message);
+    throw error;
+  }
+}
+
+export async function visualQuery(params: { model: string; messages: { role: string; content: any[] }[]; max_tokens: number }) {
+  try {
+    const response = await axios.post(
+      'https://api.openai.com/v1/chat/completions', // Adjust the endpoint if needed
+      {
+        model: params.model,
+        messages: params.messages,
+        max_tokens: params.max_tokens,
+      },
+      {
+        headers: {
+          'Authorization': `Bearer YOUR_OPENAI_API_KEY`,
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Error calling OpenAI API:', error.response ? error.response.data : error.message);
+    throw error;
+  }
+}
