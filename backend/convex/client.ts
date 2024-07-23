@@ -2,7 +2,7 @@ import { ConvexHttpClient } from "convex/browser";
 import { api } from "./_generated/api.js";
 import * as dotenv from "dotenv";
 import { SerializedTextInput, TextInput } from "./textInput";
-
+import { testConvo } from "./tests/testConversations";
 // dotenv.config({ path: ".env.local" });
 
 const client = new ConvexHttpClient("https://reliable-gecko-464.convex.cloud");
@@ -30,17 +30,27 @@ async function getAllTextInputs() {
 
 // Example usage
 async function main() {
-  console.log(JSON.stringify(api, null, 2));
-  const newTextInput: SerializedTextInput = {
-    id: "t:1",  // Replace with actual ID generation logic
-    creator: "p:1", // Replace with actual player ID
-    created: new Date().toISOString(),
-    input: "Hello, World!"
-  };
-  // Create a new TextInput
-  await createTextInput(newTextInput);
-  // Query all TextInputs
-  await getAllTextInputs();
+  // console.log(JSON.stringify(api, null, 2));
+  // const newTextInput: SerializedTextInput = {
+  //   id: "t:1",  // Replace with actual ID generation logic
+  //   creator: "p:1", // Replace with actual player ID
+  //   created: new Date().toISOString(),
+  //   input: "Hello, World!"
+  // };
+  // // Create a new TextInput
+  // await createTextInput(newTextInput);
+  // // Query all TextInputs
+  // await getAllTextInputs();
+  await callAction();
+}
+
+async function callAction() {
+  try {
+    const result = await client.action(api.actions.testConvo);
+    console.log("Action result:", result);
+  } catch (error) {
+    console.error("Error calling action:", error);
+  }
 }
 
 main();

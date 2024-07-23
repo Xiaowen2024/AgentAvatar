@@ -5,22 +5,15 @@ import {
   internalMutation,
   mutation,
   query,
+  action
 } from '../_generated/server';
 import { v } from 'convex/values';
 import { GameId } from '../ids';
 import { internal } from '../_generated/api';
 import { ActionCtx } from '../_generated/server'; 
 
-async function runTestConvo() {
-  const result = await internal.actions.testConvo({}, {});
-  console.log(result);
-}
 
-runTestConvo().catch((error) => {
-  console.error('Error running testConvo:', error);
-});
-
-export const testConvo = internalAction({
+export const testConvo = action({
   args: {},
   handler: async (ctx: ActionCtx, args) => {
     const a: any = (await startConversationMessage(
@@ -32,3 +25,4 @@ export const testConvo = internalAction({
     return await a.readAll();
   },
 });
+ // Replace getContext() with your actual method to get the context

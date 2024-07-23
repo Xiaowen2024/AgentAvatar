@@ -19,6 +19,7 @@ import type * as Agent_conversation from "../Agent/conversation.js";
 import type * as Agent_conversationMemory from "../Agent/conversationMemory.js";
 import type * as Agent_embeddingsCache from "../Agent/embeddingsCache.js";
 import type * as Agent_memory from "../Agent/memory.js";
+import type * as build from "../../build.js";
 import type * as client from "../client.js";
 import type * as constants from "../constants.js";
 import type * as conversation from "../conversation.js";
@@ -59,6 +60,7 @@ declare const fullApi: ApiFromModules<{
   "Agent/conversationMemory": typeof Agent_conversationMemory;
   "Agent/embeddingsCache": typeof Agent_embeddingsCache;
   "Agent/memory": typeof Agent_memory;
+  build: typeof build;
   client: typeof client;
   constants: typeof constants;
   conversation: typeof conversation;
