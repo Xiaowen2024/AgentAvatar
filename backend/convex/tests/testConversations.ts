@@ -5,24 +5,23 @@ import {
   internalMutation,
   mutation,
   query,
-  action
 } from '../_generated/server';
 import { v } from 'convex/values';
 import { GameId } from '../ids';
-import { internal } from '../_generated/api';
-import { ActionCtx } from '../_generated/server'; 
+// test if start conversation message is working
 
 
-export const testConvo = action({
+export const testConvo = internalAction({
   args: {},
-  handler: async (ctx: ActionCtx, args) => {
+  handler: async (ctx, args) => {
     const a: any = (await startConversationMessage(
       ctx,
-      'c:115' as GameId<'conversations'>,
-      'p:0' as GameId<'players'>,
-      'p:6' as GameId<'players'>,
+      'c:1' as GameId<'conversations'>,
+      'p:1' as GameId<'players'>,
+      'p:2' as GameId<'players'>,
     )) as any;
     return await a.readAll();
   },
 });
- // Replace getContext() with your actual method to get the context
+
+

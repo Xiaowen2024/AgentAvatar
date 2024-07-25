@@ -667,7 +667,6 @@ export interface ChatCompletionParams {
   stop?: string[];
 }
 
-
 export interface visualQueryParams {
   model: string;
   messages: { role: string; content: 
