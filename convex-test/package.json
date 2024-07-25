@@ -1,5 +1,5 @@
 {
-  "name": "convex-test",
+  "name": "convex-test2",
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
@@ -13,11 +13,6 @@
   "dependencies": {
     "axios": "^1.7.2",
     "convex": "^1.13.2",
-    "dotenv": "^16.4.5",
-    "react": "^18.3.1"
-  },
-  "devDependencies": {
-    "@types/node": "^20.14.12",
-    "@types/react": "^18.3.3"
+    "dotenv": "^16.4.5"
   }
 }
