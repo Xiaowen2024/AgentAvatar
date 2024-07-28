@@ -1,5 +1,5 @@
 {
-  "name": "backend",
+  "name": "convex-test2",
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
@@ -9,15 +9,13 @@
   "author": "",
   "license": "ISC",
   "description": "",
+  "type": "module",
   "dependencies": {
-    "convex": "^1.13.0",
-    "dotenv": "^16.4.5",
-    "express": "^4.19.2",
-    "socket.io": "^4.7.5",
-    "ws": "^8.18.0"
+    "axios": "^1.7.2",
+    "convex": "^1.13.2",
+    "dotenv": "^16.4.5"
   },
   "devDependencies": {
-    "@types/ws": "^8.5.10"
-  },
-  "no-browser-field": true
+    "@types/node": "^20.14.12"
+  }
 }

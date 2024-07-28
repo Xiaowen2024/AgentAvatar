@@ -1,6 +1,6 @@
 import { v } from 'convex/values';
 import { playerId, conversationId, textinputId, userId } from '../ids';
-import { defineTable } from 'convex/server';
+import { defineTable, defineSchema } from 'convex/server';
 import { LLM_CONFIG } from '../util/llm';
 
 
@@ -124,3 +124,28 @@ export const agentTables = {
     embedding: v.array(v.float64()),
   }).index('text', ['textHash']),
 };
+
+export default defineSchema({
+  agents: defineTable({
+    playerId: v.string(),
+    playerName: v.string(),
+    baseKnowledgeInfo: v.object({
+      age: v.number(),
+      gender: v.string(),
+      ethnicity: v.string(),
+      selfDescription: v.string(),
+    }),
+    basePersonalityInfo: v.object({
+      introversion: v.number(),
+      openness: v.number(),
+      conscientiousness: v.number(),
+      agreeableness: v.number(),
+      neuroticism: v.number(),
+      keywords: v.array(v.string()),
+    }),
+    baseSkillsInfo: v.object({
+      skills: v.array(v.string()),
+    }),
+    inProgressOperation: v.optional(v.any())
+  }),
+});

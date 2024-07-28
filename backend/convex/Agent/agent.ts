@@ -1,9 +1,11 @@
-import { GameId, parseGameId, textinputId, playerId, agentId} from '../ids.ts';
+import { GameId, parseGameId, textinputId, playerId, agentId} from '../ids';
 import { Game, IdManager } from '../game';
 import { ObjectType, v } from 'convex/values';
 import { MutationCtx, internalMutation, internalQuery } from '../_generated/server';
 import { internal } from '../_generated/api';
 import { FunctionArgs } from 'convex/server';
+import { mutation } from '../_generated/server';
+
 
 enum Gender {
     Male = 'Male',
@@ -77,8 +79,8 @@ export class InProgressOperation {
 }
 
 export const serializedAgent = {
-    id: agentId,
     playerId: playerId,
+    playerName: v.string(),
     baseKnowledgeInfo: v.object(
         {
             age: v.number(),
@@ -113,8 +115,8 @@ export const serializedAgent = {
 };
 
 export class Agent {
-    id: GameId<'agents'>;
     playerId: GameId<'players'>;
+    playerName: SerializedAgent['playerName'];
     baseKnowledgeInfo: SerializedAgent['baseKnowledgeInfo'];
     baseSkillsInfo: SerializedAgent['baseSkillsInfo'];
     basePersonalityInfo: SerializedAgent['basePersonalityInfo'];
@@ -122,8 +124,8 @@ export class Agent {
 
    
     constructor(serialized: SerializedAgent) {
-        this.id = parseGameId('agents', this.id);
-        this.playerId = parseGameId('players', this.playerId);
+        this.playerName = serialized.playerName;
+        this.playerId = parseGameId('players', serialized.playerId);
         this.baseKnowledgeInfo = { ...serialized.baseKnowledgeInfo };
         this.baseSkillsInfo = { ...serialized.baseSkillsInfo };
         this.basePersonalityInfo = { ...serialized.basePersonalityInfo };
@@ -134,8 +136,8 @@ export class Agent {
 
     serialize(): SerializedAgent {
         return {
-            id: this.id,
             playerId: this.playerId,
+            playerName: this.playerName,
             baseKnowledgeInfo: this.baseKnowledgeInfo,
             baseSkillsInfo: this.baseSkillsInfo,
             basePersonalityInfo: this.basePersonalityInfo,
@@ -144,32 +146,61 @@ export class Agent {
     }
     
 
-    startOperation<Name extends keyof AgentOperations>(
-        game: Game,
-        time: number,
-        name: Name,
-        args: Omit<FunctionArgs<AgentOperations[Name]>, 'operationId'>,
-    ) {
-        const idManager = IdManager.getInstance();
-        if (this.inProgressOperation) {
-        throw new Error(
-            `Agent ${this.id} already has an operation: ${JSON.stringify(this.inProgressOperation)}`,
-        );
-        }
-        const operationId = idManager.allocId('operations');
-        console.log(`Agent ${this.id} starting operation ${String(name)} (${operationId})`);
-        game.scheduleOperation(String(name), { operationId, ...args } as any);
-        this.inProgressOperation = {
-        name: name as string,
-        operationId,
-        started: time as number,
-        };
-    }
+    // startOperation<Name extends keyof AgentOperations>(
+    //     game: Game,
+    //     time: number,
+    //     name: Name,
+    //     args: Omit<FunctionArgs<AgentOperations[Name]>, 'operationId'>,
+    // ) {
+    //     const idManager = IdManager.getInstance();
+    //     if (this.inProgressOperation) {
+    //     throw new Error(
+    //         `Agent ${this.id} already has an operation: ${JSON.stringify(this.inProgressOperation)}`,
+    //     );
+    //     }
+    //     const operationId = idManager.allocId('operations');
+    //     console.log(`Agent ${this.id} starting operation ${String(name)} (${operationId})`);
+    //     game.scheduleOperation(String(name), { operationId, ...args } as any);
+    //     this.inProgressOperation = {
+    //     name: name as string,
+    //     operationId,
+    //     started: time as number,
+    //     };
+    // }
 
 }; 
 
 export type SerializedAgent = ObjectType<typeof serializedAgent>;
 
-type AgentOperations = typeof internal.aiTown.agentOperations;
+// type AgentOperations = typeof internal.agentOperations;
 
+const agentDataValidator = v.object({
+    playerId: v.string(),
+    playerName: v.string(),
+    baseKnowledgeInfo: v.object({
+      age: v.number(),
+      gender: v.string(),
+      ethnicity: v.string(),
+      selfDescription: v.string(),
+    }),
+    basePersonalityInfo: v.object({
+      introversion: v.number(),
+      openness: v.number(),
+      conscientiousness: v.number(),
+      agreeableness: v.number(),
+      neuroticism: v.number(),
+      keywords: v.array(v.string()),
+    }),
+    baseSkillsInfo: v.object({
+      skills: v.array(v.string()),
+    }),
+    inProgressOperation: v.optional(v.any()),
+  });
     
+export const initializeAgents = mutation({
+    args: { agentData: agentDataValidator },
+    handler: async (ctx, args) => {
+      const taskId = await ctx.db.insert("agents", args.agentData);
+      return taskId;
+    },
+  });

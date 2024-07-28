@@ -1,91 +1,25 @@
-// {
-//   /* This TypeScript project config describes the environment that
-//    * Convex functions run in and is used to typecheck them.
-//    * You can modify it, but some settings required to use Convex.
-//    */
-//   "compilerOptions": {
-//     /* These settings are not required by Convex and can be modified. */
-//     "allowJs": true,
-//     "strict": true,
-//     "moduleResolution": "Bundler",
-//     "jsx": "react-jsx",
-//     "skipLibCheck": true,
-//     "allowSyntheticDefaultImports": true,
-
-//     /* These compiler options are required by Convex */
-//     "target": "ESNext",
-//     "lib": ["ES2021", "dom"],
-//     "forceConsistentCasingInFileNames": true,
-//     "module": "ESNext",
-//     "isolatedModules": true,
-//     "noEmit": true, 
-    
-//     "path": {
-//       "convex/*": ["./_generated/convex/*"]
-//     }
-//   },
-//   "include": ["./**/*"],
-//   "exclude": ["./_generated"]
-// }
-
-// {
-//   "compilerOptions": {
-//     "target": "es2015",
-//     "lib": ["dom", "dom.iterable", "esnext"],
-//     "tsBuildInfoFile": "./tmp/tsconfig.tsbuildinfo",
-//     "allowJs": true,
-//     "skipLibCheck": true,
-//     "strict": true,
-//     "forceConsistentCasingInFileNames": true,
-//     "noEmit": true,
-//     "esModuleInterop": true,
-//     "module": "ESNext",
-//     "moduleResolution": "node",
-//     "resolveJsonModule": true,
-//     "isolatedModules": true,
-//     "jsx": "preserve",
-//     "incremental": true,
-//     "allowImportingTsExtensions": true,
-//     "plugins": [
-//       {
-//         "name": "next"
-//       }
-//     ],
-//     "paths": {
-//       "@/*": ["./src/*"]
-//     }, 
-//     "types": ["jest"]
-//   },
-//   "include": ["src/**/*"],
-//   "exclude": ["node_modules"]
-// }
-
 {
+  /* This TypeScript project config describes the environment that
+   * Convex functions run in and is used to typecheck them.
+   * You can modify it, but some settings required to use Convex.
+   */
   "compilerOptions": {
-    "target": "es2015",
-    "lib": ["dom", "dom.iterable", "esnext"],
+    /* These settings are not required by Convex and can be modified. */
     "allowJs": true,
-    "skipLibCheck": true,
     "strict": true,
+    "moduleResolution": "Bundler",
+    "jsx": "react-jsx",
+    "skipLibCheck": true,
+    "allowSyntheticDefaultImports": true,
+
+    /* These compiler options are required by Convex */
+    "target": "ESNext",
+    "lib": ["ES2021", "dom"],
     "forceConsistentCasingInFileNames": true,
-    "noEmit": true,
-    "esModuleInterop": true,
-    "module": "esnext",
-    "moduleResolution": "node",
-    "resolveJsonModule": true,
+    "module": "ESNext",
     "isolatedModules": true,
-    "jsx": "preserve",
-    "incremental": true,
-    "allowImportingTsExtensions": true,
-    "plugins": [
-      {
-        "name": "next"
-      }
-    ],
-    "paths": {
-      "@/*": ["./src/*"]
-    }
+    "noEmit": true
   },
-  "include": [],
-  "exclude": ["node_modules"]
+  "include": ["./**/*"],
+  "exclude": ["./_generated"]
 }

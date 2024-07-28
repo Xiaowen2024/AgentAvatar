@@ -10,7 +10,7 @@ import {
 import { v } from 'convex/values';
 import schema from './schema';
 import { DELETE_BATCH_SIZE } from './constants';
-import { startConversationMessage } from './Agent/conversation';
+import { startConversationMessage } from './agentConversation';
 import { GameId } from './ids';
 
 // // Clear all of the tables except for the embeddings cache.

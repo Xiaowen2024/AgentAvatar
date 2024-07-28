@@ -662,10 +662,11 @@ import axios from 'axios';
 
 export interface ChatCompletionParams {
   model: string;
-  messages: { role: string; content: string }[];
+  messages: LLMMessage[];
   max_tokens: number;
   stop?: string[];
 }
+
 
 export interface visualQueryParams {
   model: string;
@@ -690,15 +691,16 @@ export async function chatCompletion(params: ChatCompletionParams ) {
       },
       {
         headers: {
-          'Authorization': `Bearer YOUR_OPENAI_API_KEY`,
+          'Authorization': `Bearer apikey`,
           'Content-Type': 'application/json',
         },
       }
     );
     return response.data;
   } catch (error) {
-    console.error('Error calling OpenAI API:', error.response ? error.response.data : error.message);
-    throw error;
+    const err = error as any;
+    console.error('Error calling OpenAI API:', err.response ? err.response.data : err.message);
+    throw err;
   }
 }
 
@@ -713,14 +715,15 @@ export async function visualQuery(params: { model: string; messages: { role: str
       },
       {
         headers: {
-          'Authorization': `Bearer YOUR_OPENAI_API_KEY`,
+          'Authorization': `Bearer apikey`,
           'Content-Type': 'application/json',
         },
       }
     );
     return response.data;
   } catch (error) {
-    console.error('Error calling OpenAI API:', error.response ? error.response.data : error.message);
-    throw error;
+    const err = error as any;
+    console.error('Error calling OpenAI API:', err.response ? err.response.data : err.message);
+    throw err;
   }
 }

@@ -1,4 +1,4 @@
-import { startConversationMessage } from '../Agent/conversation';
+import { startConversationMessage } from '../agentConversation';
 import { ActionCtx } from '../_generated/server';
 import { GameId } from '../ids';
 import * as memory from '../Agent/memory';

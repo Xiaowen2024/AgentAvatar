@@ -11,7 +11,7 @@ import * as dotenv from "dotenv";
 import { SerializedTextInput, TextInput } from "./textInput";
 
 
-export class TextInput {
+export class TextInput  {
   id: GameId<'textinput'>;
   creator: GameId<'players'>;
   user: GameId<'users'>;

@@ -4,7 +4,7 @@ import { internal } from '../_generated/api';
 import { Id } from '../_generated/dataModel';
 import { fetchEmbeddingBatch } from '../util/llm';
 
-const selfInternal = internal.agent.embeddingsCache;
+const selfInternal = internal.Agent.embeddingsCache;
 
 export async function fetch(ctx: ActionCtx, text: string) {
   const result = await fetchBatch(ctx, [text]);
