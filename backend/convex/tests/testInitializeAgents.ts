@@ -1,4 +1,4 @@
-import {Agent} from '../Agent/agent';
+import {Agent} from '../Memory/agent';
 import { mutation, action } from "../_generated/server";
 import { v } from "convex/values";
 import { client } from "../client";

@@ -1,9 +1,7 @@
 import { v } from 'convex/values';
-import { playerId, conversationId, textinputId, userId } from '../ids';
+import { playerId, conversationId, textinputId, visualinputId, userId } from '../ids';
 import { defineTable, defineSchema } from 'convex/server';
 import { LLM_CONFIG } from '../util/llm';
-
-
 
 export const episodicMemoryFields = {
   playerId : playerId,
@@ -12,32 +10,34 @@ export const episodicMemoryFields = {
   importance: v.number(),
   lastAccess: v.number(),
   emotion: v.optional(v.string()),
+  confidenceLevel: v.number(),
   data: v.union(
+    // event relations with other players
     v.object({
       type: v.literal('relationship'),
-      playerId,
+      playerIds : v.optional(v.array(playerId))
     }),
+    // conversations related to this memory
     v.object({
       type: v.literal('conversation'),
-      conversationId,
-      // The other player(s) in the conversation.
-      playerId: v.array(playerId),
+      conversationId: v.optional(conversationId)
     }),
-    v.object({
-        type: v.literal('textinput'),
-        textinputId:  v.optional(v.string()),
-        // The other user(s) in the conversation.
-        userId: v.array(userId),
-    }),
-    v.object({
-      type: v.literal('visualinput'),
-      visualinputId:  v.optional(v.string()),
-      userId: v.array(userId),
-    }),
+    // reflection related to this memory
     v.object({
       type: v.literal('reflection'),
       relatedMemoryIds: v.array(v.id('memories')),
     }),
+    // below two are specificly related to memory updates that are driven by user input instead of actual conversations or events
+    // text input related to this memory
+    v.object({
+        type: v.literal('textinput'),
+        textinputId:  v.optional(textinputId)
+    }),
+    // visual input related to this memory
+    v.object({
+      type: v.literal('visualinput'),
+      visualinputId:  v.optional(visualinputId)
+    })
   ),
 };
 

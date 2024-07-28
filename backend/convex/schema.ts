@@ -1,14 +1,15 @@
 import { defineSchema, defineTable } from 'convex/server';
 import { v } from 'convex/values';
-import { agentTables } from './Agent/schema';
+import { agentTables } from './Memory/schema';
 // import { aiTownTables } from './aiTown/schema';
 import { conversationId, playerId } from './ids';
 
 export default defineSchema({
-  music: defineTable({
-    storageId: v.string(),
-    type: v.union(v.literal('background'), v.literal('player')),
-  }),
+
+  worlds: defineTable({ 
+    worldId: v.string(), 
+    createdTime: v.string()
+   }),
   agents: defineTable({
     playerId: v.string(),
     worldId: v.id('worlds'),
@@ -41,7 +42,7 @@ export default defineSchema({
     createdAt: v.string(),
     endedAt: v.optional(v.string()), 
     lastMessageId: v.optional(v.string())
-  }).index("conversationId", ["conversationId"]),
+  }).index("conversationId", ["worldId", "conversationId"]),
 
   messages: defineTable({
     conversationId,

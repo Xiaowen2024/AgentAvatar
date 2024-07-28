@@ -1,8 +1,8 @@
 import { startConversationMessage } from '../agentConversation';
 import { ActionCtx } from '../_generated/server';
 import { GameId } from '../ids';
-import * as memory from '../Agent/memory';
-import * as embeddingsCache from '../Agent/embeddingsCache';
+import * as memory from '../Memory/memoryHelper';
+import * as embeddingsCache from '../Memory/embeddingsCache';
 import * as chatUtil from '../util/llm';
 import 'jest';
 

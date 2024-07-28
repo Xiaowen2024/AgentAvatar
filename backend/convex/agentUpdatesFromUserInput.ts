@@ -4,11 +4,11 @@ import { LLMMessage, chatCompletion } from './util/llm';
 import { api, internal } from './_generated/api';
 import { GameId, conversationId, playerId } from './ids';
 import { NUM_MEMORIES_TO_SEARCH } from './constants';
-import * as memory from './Agent/memory';
-import * as embeddingsCache from './Agent/embeddingsCache';
+import * as memory from './Memory/memoryHelper';
+import * as embeddingsCache from './Memory/embeddingsCache';
 import * as agentConversation from './agentConversation';
 import { v } from 'convex/values';
-import { Agent } from './Agent/agent';
+import { Agent } from './Memory/agent';
 
 
 

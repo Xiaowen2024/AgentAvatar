@@ -14,10 +14,10 @@ import type {
   FilterApi,
   FunctionReference,
 } from "convex/server";
-import type * as Agent_agent from "../Agent/agent.js";
-import type * as Agent_conversationMemory from "../Agent/conversationMemory.js";
-import type * as Agent_embeddingsCache from "../Agent/embeddingsCache.js";
-import type * as Agent_memory from "../Agent/memory.js";
+import type * as Agent_agent from "../Memory/agent.js";
+import type * as Agent_conversationMemory from "../Memory/conversationMemory.js";
+import type * as Agent_embeddingsCache from "../Memory/embeddingsCache.js";
+import type * as Agent_memory from "../Memory/memoryHelper.js";
 import type * as actions from "../actions.js";
 import type * as agentConversation from "../agentConversation.js";
 import type * as client from "../client.js";
