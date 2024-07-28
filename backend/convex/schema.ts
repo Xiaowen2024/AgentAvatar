@@ -11,6 +11,7 @@ export default defineSchema({
   }),
   agents: defineTable({
     playerId: v.string(),
+    worldId: v.id('worlds'),
     playerName: v.string(),
     baseKnowledgeInfo: v.object({
       age: v.number(),
@@ -30,7 +31,17 @@ export default defineSchema({
       skills: v.array(v.string()),
     }),
     inProgressOperation: v.optional(v.any())
-  }).index("playerId", ["playerId"]),
+  }).index("playerId", ["worldId", "playerId"]),
+
+  conversations: defineTable({
+    conversationId: v.string(),
+    worldId: v.id('worlds'),
+    playerId: v.string(),
+    otherPlayerId: v.string(), 
+    createdAt: v.string(),
+    endedAt: v.optional(v.string()), 
+    lastMessageId: v.optional(v.string())
+  }).index("conversationId", ["conversationId"]),
 
   messages: defineTable({
     conversationId,

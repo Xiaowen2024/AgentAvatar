@@ -664,6 +664,7 @@ export interface ChatCompletionParams {
   model: string;
   messages: LLMMessage[];
   max_tokens: number;
+  stream?: boolean;
   stop?: string[];
 }
 
@@ -675,6 +676,7 @@ export interface visualQueryParams {
     { type: string; image_url: { url: string } }
    }[];
   max_tokens: number;
+  stream?: boolean;
   stop?: string[];
 }
 
@@ -687,6 +689,7 @@ export async function chatCompletion(params: ChatCompletionParams ) {
         model: params.model,
         messages: params.messages,
         max_tokens: params.max_tokens,
+        stream: params.stream ?? false,
         stop: params.stop
       },
       {
@@ -704,7 +707,7 @@ export async function chatCompletion(params: ChatCompletionParams ) {
   }
 }
 
-export async function visualQuery(params: { model: string; messages: { role: string; content: any[] }[]; max_tokens: number }) {
+export async function visualQuery(params: visualQueryParams) {
   try {
     const response = await axios.post(
       'https://api.openai.com/v1/chat/completions', // Adjust the endpoint if needed
@@ -712,6 +715,8 @@ export async function visualQuery(params: { model: string; messages: { role: str
         model: params.model,
         messages: params.messages,
         max_tokens: params.max_tokens,
+        stream: params.stream ?? false,
+        stop: params.stop
       },
       {
         headers: {

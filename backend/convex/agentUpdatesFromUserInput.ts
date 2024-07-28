@@ -12,78 +12,14 @@ import { Agent } from './Agent/agent';
 
 
 
-const selfInternal = internal.agentConversation;
+const selfInternal = internal.agentUpdatesFromUserInput;
 
-export async function startConversationMessage(
-  ctx: ActionCtx,
-  conversationId: GameId<'conversations'>,
-  playerId: GameId<'players'>,
-  otherPlayerId: GameId<'players'>,
-) {
-  
-  // const { player, otherPlayer, agent, otherAgent, lastConversation } = await ctx.runQuery(
-  //   internal.Agent.agentConversation.queryPromptData,
-  //   {
-  //     playerId,
-  //     otherPlayerId,
-  //     conversationId,
-  //   },
-  // );
-  // const embedding = await embeddingsCache.fetch(
-  //   ctx,
-  //   `${player.name} is talking to ${otherPlayer.name}`,
-  // );
-
-  // const memories = await memory.searchMemories(
-  //   ctx,
-  //   player.id as GameId<'players'>,
-  //   embedding,
-  //   Number(process.env.NUM_MEMORIES_TO_SEARCH) || NUM_MEMORIES_TO_SEARCH,
-  // );
-
-  // const memoryWithOtherPlayer = memories.find(
-  //   (m : any) => m.data.type === 'conversation' && m.data.playerIds.includes(otherPlayerId),
-  // );
-  // const prompt = [
-  //   `You are ${player.name}, and you just started a conversation with ${otherPlayer.name}.`,
-  // ];
-  // prompt.push(...agentPrompts(otherPlayer, agent, otherAgent ?? null));
-  // prompt.push(...previousConversationPrompt(otherPlayer, lastConversation));
-  // // prompt.push(...relatedMemoriesPrompt(memories));
-  // // if (memoryWithOtherPlayer) {
-  // //   prompt.push(
-  // //     `Be sure to include some detail or question about a previous conversation in your greeting.`,
-  // //   );
-  // // }
-  // prompt.push(`${player.name}:`);
-
-  // const params = {
-  //   model: "gpt-4",
-  //   messages: [
-  //     { role: 'user' as const, content: prompt.join('\n') }
-  //   ],
-  //   max_tokens: 50,
-  //   stop: stopWords(otherPlayer.name, player.name),
-  // };
-
-  // const { content } = await chatCompletion(params);
-  // return content;
-}
-
-const messageValidator = v.object({
-  conversationId: v.id('conversations'),
-  author: v.id('players'),
-  messageUuid: v.string(),
-  text: v.string(),
-  worldId: v.id('worlds')
-});
-
-
-export const startConversationMessageAction = action({
+export const receiveTextualInput = action({
   args: {
     playerId: v.string(),
-    otherPlayerId: v.string(),
-    worldId: v.id('worlds')
+    worldId: v.id('worlds'),
+    agentId: v.string(),
+    input: v.string()
   },
   handler: async (ctx: ActionCtx, args: { playerId: string, otherPlayerId: string, worldId: Id<'worlds'> }) => {
     const { player, otherPlayer, playerDescription, otherPlayerDescription } = await ctx.runQuery(
