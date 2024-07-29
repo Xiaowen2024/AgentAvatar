@@ -1,5 +1,5 @@
 // That's right! No imports and no dependencies 🤯
-
+import https from 'https';
 export const LLM_CONFIG = {
   /* Ollama (local) config:
    */
@@ -680,8 +680,10 @@ export interface visualQueryParams {
   stop?: string[];
 }
 
-
 export async function chatCompletion(params: ChatCompletionParams ) {
+  const agent = new https.Agent({  
+    rejectUnauthorized: false
+  });
   try {
     const response = await axios.post(
       'https://api.openai.com/v1/chat/completions',
@@ -696,7 +698,8 @@ export async function chatCompletion(params: ChatCompletionParams ) {
         headers: {
           'Authorization': `Bearer apikey`,
           'Content-Type': 'application/json',
-        },
+        }, 
+        httpsAgent: agent
       }
     );
     return response.data;
