@@ -304,17 +304,6 @@ export async function leaveConversationMessage(
   }
 }
 
-// function relatedMemoriesPrompt(memories: memory.Memory[]): string[] {
-//   const prompt: string[] = [];
-//   if (memories.length > 0) {
-//     prompt.push(`Here are some related memories in decreasing relevance order:`);
-//     for (const memory of memories) {
-//       prompt.push(' - ' + memory.description);
-//     }
-//   }
-//   return prompt;
-// }
-
 function stopWords(otherPlayer: string, player: string) {
   // These are the words we ask the LLM to stop on. OpenAI only supports 4.
   const variants = [`${otherPlayer} to ${player}`];
@@ -414,36 +403,6 @@ export const queryPromptData = internalQuery({
     if (otherPlayer.inProgressOperation) {
       otherPlayerDescription += `They are currently working on ${otherPlayer.inProgressOperation.name} with id ${otherPlayer.inProgressOperation.operationId}.`;
     }
-
-    // const conversation = await ctx.db.query('conversations' as any).withIndex('id', (q) => q.eq('id', args.conversationId)).first();
-    // if (!conversation) {
-    //   throw new Error(`Conversation ${args.conversationId} not found`);
-    // }
-    
-    // const lastTogether = await ctx.db
-    //   .query('participatedTogether')
-    //   .withIndex('edge', (q) =>
-    //     q
-    //       .eq('worldId', args.worldId)
-    //       .eq('player1', args.playerId)
-    //       .eq('player2', args.otherPlayerId),
-    //   )
-    //   // Order by conversation end time descending.
-    //   .order('desc')
-    //   .first();
-
-    // let lastConversation = null;
-    // if (lastTogether) {
-    //   lastConversation = await ctx.db
-    //     .query('archivedConversations')
-    //     .withIndex('worldId', (q) =>
-    //       q.eq('worldId', args.worldId).eq('id', lastTogether.conversationId),
-    //     )
-    //     .first();
-    //   if (!lastConversation) {
-    //     throw new Error(`Conversation ${lastTogether.conversationId} not found`);
-    //   }
-    // }
 
     return {
       player, 

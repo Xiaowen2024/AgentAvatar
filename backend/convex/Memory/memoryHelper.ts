@@ -24,70 +24,70 @@ export type MemoryOfType<T extends MemoryType> = Omit<Memory, 'data'> & {
 };
 // type ValidTableNames = 'memories' | Exclude<TableNames, 'memories'>;
 
-// export async function rememberConversation(
-//   ctx: ActionCtx,
-//   agentId: GameId<'agents'>,
-//   playerId: GameId<'players'>,
-//   conversationId: GameId<'conversations'>,
-// ) {
-//   const data = await ctx.runQuery(selfInternal.loadConversation, {
-//     playerId,
-//     conversationId,
-//   });
-//   const { player, otherPlayer } = data;
-//   const messages = await ctx.runQuery(selfInternal.loadMessages, { conversationId });
-//   if (!messages.length) {
-//     return;
-//   }
+export async function rememberConversation(
+  ctx: ActionCtx,
+  agentId: GameId<'agents'>,
+  playerId: GameId<'players'>,
+  conversationId: GameId<'conversations'>,
+) {
+  const data = await ctx.runQuery(selfInternal.loadConversation, {
+    playerId,
+    conversationId,
+  });
+  const { player, otherPlayer } = data;
+  const messages = await ctx.runQuery(selfInternal.loadMessages, { conversationId });
+  if (!messages.length) {
+    return;
+  }
 
-//   const llmMessages: LLMMessage[] = [
-//     {
-//       role: 'user',
-//       content: `You are ${player.name}, and you just finished a conversation with ${otherPlayer.name}. I would
-//       like you to summarize the conversation from ${player.name}'s perspective, using first-person pronouns like
-//       "I," and add if you liked or disliked this interaction.`,
-//     },
-//   ];
+  const llmMessages: LLMMessage[] = [
+    {
+      role: 'user',
+      content: `You are ${player.name}, and you just finished a conversation with ${otherPlayer.name}. I would
+      like you to summarize the conversation from ${player.name}'s perspective, using first-person pronouns like
+      "I," and add if you liked or disliked this interaction.`,
+    },
+  ];
 
   
-//   const authors = new Set<GameId<'players'>>();
-//   for (const message of messages) {
-//     const author = message.author === player.id ? player : otherPlayer;
-//     authors.add(author.id as GameId<'players'>);
-//     const recipient = message.author === player.id ? otherPlayer : player;
-//     llmMessages.push({
-//       role: 'user',
-//       content: `${author.name} to ${recipient.name}: ${message.text}`,
-//     });
-//   }
-//   llmMessages.push({ role: 'user', content: 'Summary:' });
-//   const { content } = await chatCompletion({
-//     model: "gpt-4",
-//     messages: llmMessages,
-//     max_tokens: 500,
-//   });
-//   const description = `Conversation with ${otherPlayer.name} at ${new Date(
-//     data.conversation._creationTime,
-//   ).toLocaleString()}: ${content}`;
-//   const importance = await calculateImportance(description);
-//   const { embedding } = await fetchEmbedding(description);
-//   authors.delete(player.id as GameId<'players'>);
-//   await ctx.runMutation(selfInternal.insertMemory, {
-//     agentId,
-//     playerId: player.id,
-//     description,
-//     importance,
-//     lastAccess: messages[messages.length - 1]._creationTime,
-//     data: {
-//       type: 'conversation',
-//       conversationId,
-//       playerIds: [...authors],
-//     },
-//     embedding,
-//   });
-//   await reflectOnMemories(ctx,playerId);
-//   return description;
-// }
+  const authors = new Set<GameId<'players'>>();
+  for (const message of messages) {
+    const author = message.author === player.id ? player : otherPlayer;
+    authors.add(author.id as GameId<'players'>);
+    const recipient = message.author === player.id ? otherPlayer : player;
+    llmMessages.push({
+      role: 'user',
+      content: `${author.name} to ${recipient.name}: ${message.text}`,
+    });
+  }
+  llmMessages.push({ role: 'user', content: 'Summary:' });
+  const { content } = await chatCompletion({
+    model: "gpt-4",
+    messages: llmMessages,
+    max_tokens: 500,
+  });
+  const description = `Conversation with ${otherPlayer.name} at ${new Date(
+    data.conversation._creationTime,
+  ).toLocaleString()}: ${content}`;
+  const importance = await calculateImportance(description);
+  const { embedding } = await fetchEmbedding(description);
+  authors.delete(player.id as GameId<'players'>);
+  await ctx.runMutation(selfInternal.insertMemory, {
+    agentId,
+    playerId: player.id,
+    description,
+    importance,
+    lastAccess: messages[messages.length - 1]._creationTime,
+    data: {
+      type: 'conversation',
+      conversationId,
+      playerIds: [...authors],
+    },
+    embedding,
+  });
+  await reflectOnMemories(ctx,playerId);
+  return description;
+}
 
 // export const loadConversation = internalQuery({
 //   args: {

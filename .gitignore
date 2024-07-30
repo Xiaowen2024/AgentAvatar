@@ -1,3 +1,4 @@
+
 # This .gitignore file should be placed at the root of your Unity project directory
 #
 # Get latest from https://github.com/github/gitignore/blob/master/Unity.gitignore
@@ -81,3 +82,9 @@ Library/PackageCache/com.unity.burst@1.8.13/Run/libburst-llvm-16.dylib
 
 
 *.so
+node_modules
+node_modules
+node_modules
+node_modules
+node_modules
+node_modules

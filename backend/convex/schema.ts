@@ -1,7 +1,6 @@
 import { defineSchema, defineTable } from 'convex/server';
 import { v } from 'convex/values';
 import { agentTables } from './Memory/schema';
-// import { aiTownTables } from './aiTown/schema';
 import { conversationId, playerId } from './ids';
 
 export default defineSchema({

@@ -10,8 +10,6 @@ import * as agentConversation from './agentConversation';
 import { v } from 'convex/values';
 import { Agent } from './Memory/agent';
 
-
-
 const selfInternal = internal.agentUpdatesFromUserInput;
 
 export const receiveTextualInput = action({

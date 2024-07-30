@@ -18,8 +18,9 @@
     "forceConsistentCasingInFileNames": true,
     "module": "ESNext",
     "isolatedModules": true,
-    "noEmit": true
+    "noEmit": true, 
+    "typeRoots": ["./node_modules/@types", "./src/types"]
   },
-  "include": ["./**/*"],
+  "include": ["./**/*", "src/types/**/*.d.ts"], 
   "exclude": ["./_generated"]
 }

@@ -11,7 +11,6 @@ import { TableNames } from './_generated/dataModel';
 import { ChatCompletionParams } from './util/llm';
 
 const selfInternal = internal.agentConversationHelper;
-
 export const getConversationId = query({
   args: {}, 
   handler: async (ctx, args) => {
@@ -180,5 +179,25 @@ export const loadMessages = internalQuery({
       )
       .collect();
     return messages;
+  },
+});
+
+const { embeddingId: _embeddingId, ...memoryFieldsWithoutEmbeddingId } = semanticMemoryFields;
+
+export const insertMemory = internalMutation({
+  args: {
+    agentId,
+    embedding: v.array(v.float64()),
+    ...memoryFieldsWithoutEmbeddingId,
+  },
+  handler: async (ctx, { agentId: _, embedding, ...memory }): Promise<void> => {
+    const embeddingId = await ctx.db.insert('memoryEmbeddings', {
+      playerId: memory.playerId,
+      embedding,
+    });
+    await ctx.db.insert('memories', {
+      ...memory,
+      embeddingId,
+    });
   },
 });
