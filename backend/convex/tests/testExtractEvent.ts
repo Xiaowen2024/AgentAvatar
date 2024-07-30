@@ -1,4 +1,4 @@
-import { extractEvent } from "../Memory/extractEvent";
+import { extractEvent } from "../PerceptionAnalysis/extractEvent";
 
 export function testExtractEvent() {
     const event = extractEvent("I went to the store and bought some food.");
