@@ -16,6 +16,7 @@ This guide provides instructions to set up and run the Node.js and Python server
 - Run `npx convex deploy` to deploy recent changes
 - Run `npx convex dev` to set up a Convex dev deployment
 
+# Server setup
 
 ## Running the Node.js Server
 
@@ -28,8 +29,10 @@ npx tsx server.ts
 To start the Python server, use the following command:
 python3 util/pythonServer.py
 
+# Test Current Features
+
 ## Initialize Agents
 npx tsx tests/initializeAgents.ts
 
-## Initialize Agents
+## Start Conversations
 npx tsx tests/startConversationMessageAction.ts
