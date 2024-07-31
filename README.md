@@ -2,16 +2,16 @@
 
 This guide provides instructions to set up and run the Node.js and Python servers, initialize agents, and start a conversation action.
 
-## Prerequisites
+# Prerequisites
 
-Ensure you have the following installed:
+## Installation:
 
-- **Node.js** and **npm** (or **npx** for running commands)
+- **Node.js** and **npm** and **npx** for running commands
 - **Python 3**
 - Required dependencies:
   - Run `npm install` to install Node.js dependencies.
   
-Start convex 
+## Start convex 
 - Run `npm install convex dotenv` to install the Convex client and server library
 - Run `npx convex deploy` to deploy recent changes
 - Run `npx convex dev` to set up a Convex dev deployment
@@ -26,8 +26,6 @@ npx tsx server.ts
 ## Running the Python Server
 
 To start the Python server, use the following command:
-
-```bash
 python3 util/pythonServer.py
 
 ## Initialize Agents
