@@ -21,7 +21,6 @@ Start convex
 
 To start the Node.js server using TypeScript, execute the following command:
 
-```bash
 npx tsx server.ts
 
 ## Running the Python Server
