@@ -30,6 +30,7 @@ import type * as game from "../game.js";
 import type * as ids from "../ids.js";
 import type * as needsExtraction from "../needsExtraction.js";
 import type * as playerDescription from "../playerDescription.js";
+import type * as tests_continueConversationMessageAction from "../tests/continueConversationMessageAction.js";
 import type * as tests_initializeAgents from "../tests/initializeAgents.js";
 import type * as tests_startConversationMessageAction from "../tests/startConversationMessageAction.js";
 import type * as tests_testChat from "../tests/testChat.js";
@@ -75,6 +76,7 @@ declare const fullApi: ApiFromModules<{
   ids: typeof ids;
   needsExtraction: typeof needsExtraction;
   playerDescription: typeof playerDescription;
+  "tests/continueConversationMessageAction": typeof tests_continueConversationMessageAction;
   "tests/initializeAgents": typeof tests_initializeAgents;
   "tests/startConversationMessageAction": typeof tests_startConversationMessageAction;
   "tests/testChat": typeof tests_testChat;

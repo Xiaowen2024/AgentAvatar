@@ -217,3 +217,10 @@ export const initializeAgents = mutation({
       return taskId;
     },
   });
+
+export function toAgent(obj: any): Agent {
+    return {
+      ...obj,
+      serialize: () => JSON.stringify(obj)
+    };
+  }

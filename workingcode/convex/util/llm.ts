@@ -696,7 +696,7 @@ export async function chatCompletion(params: ChatCompletionParams) {
       },
       {
         headers: {
-          'Authorization': `Bearer `,
+          'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
           'Content-Type': 'application/json',
         },
       }
@@ -722,7 +722,7 @@ export async function visualQuery(params: visualQueryParams) {
       },
       {
         headers: {
-          'Authorization': `Bearer `,
+          'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
           'Content-Type': 'application/json',
         },
       }
@@ -734,3 +734,4 @@ export async function visualQuery(params: visualQueryParams) {
     throw err;
   }
 }
+

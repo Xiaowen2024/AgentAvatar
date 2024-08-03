@@ -9,6 +9,7 @@ import * as embeddingsCache from './Agent/embeddingsCache';
 import * as agentConversation from './agentConversation';
 import { v } from 'convex/values';
 import { Agent } from './Agent/agent';
+import { toAgent } from './Agent/agent';
 
 const selfInternal = internal.agentConversation;
 const messageValidator = v.object({
@@ -75,19 +76,18 @@ export const startConversationMessageAction = action({
       messages: [
         { role: 'user' as const, content: prompt.join('\n') }
       ],
-      max_tokens: 1000
+      max_tokens: 300
     };
 
     const response = await chatCompletion(params);
-    const content = response.choices[0].message.content; // Extract the message content
-    
+    const content = response.choices[0].message.content; 
    
 
     const getConversationIdResult: { conversationId: string } = await ctx.runQuery(api.agentConversationHelper.getConversationId);
     const conversationId = getConversationIdResult.conversationId;
 
     const createMessageresult = await ctx.runMutation(api.agentConversationHelper.createMessage, {
-      worldId: args.worldId.toString(),
+      worldId: args.worldId,
       conversationId: conversationId,
       author: args.playerId,
       text: content
@@ -128,233 +128,249 @@ function previousConversationPrompt(
   return prompt;
 }
 
-// export const continueConversationMessageAction = action({
-//   args: {
-//     playerId: v.string(),
-//     otherPlayerId: v.string(),
-//     worldId: v.id('worlds'),
-//     conversationId: v.id('conversations')
-//   },
-//   handler: async (ctx: ActionCtx, args: { playerId: string, otherPlayerId: string, worldId: Id<'worlds'>, conversationId: Id<'conversations'> }) => {
-//     const { player, otherPlayer, playerDescription, otherPlayerDescription } = await ctx.runQuery(
-//       selfInternal.queryPromptData,
-//       {
-//         playerId: args.playerId,
-//         otherPlayerId: args.otherPlayerId,
-//         worldId: args.worldId
-//       },
-//     );
+export const continueConversationMessageAction = action({
+  args: {
+    playerId: v.string(),
+    otherPlayerId: v.string(),
+    worldId: v.string(),
+    conversationId: v.string()
+  },
+  handler: async (ctx: ActionCtx, args: { playerId: string, otherPlayerId: string, worldId: Id<'worlds'>, conversationId: Id<'conversations'> }) => {
+    const { player, otherPlayer, playerDescription, otherPlayerDescription } = await ctx.runQuery(
+      selfInternal.queryPromptData,
+      {
+        playerId: args.playerId,
+        otherPlayerId: args.otherPlayerId,
+        worldId: args.worldId
+      },
+    );
 
-//     const conversation = await ctx.runQuery(selfInternal.queryConversation, {
-//       worldId: args.worldId,
-//       conversationId: args.conversationId
-//     });
+    const conversation = await ctx.runQuery(selfInternal.queryConversation, {
+      worldId: args.worldId,
+      conversationId: args.conversationId
+    });
 
-//     if (!conversation) {
-//       throw new Error(`Conversation ${args.conversationId} not found`);
-//     }
+    if (!conversation) {
+      throw new Error(`Conversation ${args.conversationId} not found`);
+    }
 
-//     const now = Date.now();
-//     const started = new Date(conversation.createdAt);
-//     // const embedding = await embeddingsCache.fetch(
-//     //   ctx,
-//     //   `What do you think about ${otherPlayer.name}?`,
-//     // );
+    const now = Date.now();
+    // const started = new Date(conversation.createdAt);
+    // const embedding = await embeddingsCache.fetch(
+    //   ctx,
+    //   `What do you think about ${otherPlayer.name}?`,
+    // );
     
-//     // const memories = await memory.searchMemories(ctx, player.id as GameId<'players'>, embedding, 3);
-//     const prompt = [
-//       `You are ${player.playerName}, and you're currently in a conversation with ${otherPlayer.playerName}.`,
-//       `The conversation started at ${started.toLocaleString()}. It's now ${now.toLocaleString()}.`,
-//     ];
-//     // prompt.push(...relatedMemoriesPrompt(memories));
-//     prompt.push(`About you:`);
-//     prompt.push(playerDescription);
-//     prompt.push(`About ${otherPlayer.playerName}: `);
-//     prompt.push(otherPlayerDescription);
-//     prompt.push(
-//       `Below is the current chat history between you and ${otherPlayer.playerName}.`,
-//       `DO NOT greet them again. Do NOT use the word "Hey" too often. Your response should be brief and within 200 characters.`,
-//     );
+    // const memories = await memory.searchMemories(ctx, player.id as GameId<'players'>, embedding, 3);
+    const prompt = [
+      `You are ${player.playerName}, and you're currently in a conversation with ${otherPlayer.playerName}.`,
+      `The conversation started at ${conversation.createdAt}. It's now ${now.toLocaleString()}.`,
+    ];
+    // prompt.push(...relatedMemoriesPrompt(memories));
+    prompt.push(`About you:`);
+    prompt.push(playerDescription);
+    prompt.push(`About ${otherPlayer.playerName}: `);
+    prompt.push(otherPlayerDescription);
+    prompt.push(
+      `Below is the current chat history between you and ${otherPlayer.playerName}.`,
+      `DO NOT greet them again. Do NOT use the word "Hey" too often. Your response should be brief and within 200 characters.`,
+    );
 
-//     const llmMessages: LLMMessage[] = [
-//       {
-//         role: 'user',
-//         content: prompt.join('\n'),
-//       },
-//       ...(await previousMessages(
-//         ctx,
-//         args.worldId,
-//         player,
-//         otherPlayer,
-//         args.conversationId as unknown as GameId<'conversations'>,
-//       )),
-//     ];
-//     llmMessages.push({ role: 'user', content: `${player.playerName}:` });
+    const previousMessagesArray = await previousMessages(
+      ctx,
+      args.worldId,
+      toAgent(player),
+      toAgent(otherPlayer),
+      args.conversationId as unknown as GameId<'conversations'>,
+    );
 
-//     const { content } = await chatCompletion({
-//       model: "gpt-4o",
-//       messages: llmMessages,
-//       max_tokens: 300,
-//       stream: true,
-//       stop: stopWords(otherPlayer.playerName, player.playerName),
-//     });
+    if (!Array.isArray(previousMessagesArray)) {
+      throw new Error('previousMessages did not return an array');
+    }
+
+
+
+    const llmMessage : LLMMessage[] = [
+      {
+        role: 'user',
+        content: prompt.join('\n'),
+      },
+      ...previousMessagesArray
+    ]
+    ;
+    llmMessage.push({ role: 'user', content: `${player.playerName}:` });
+
     
+    const params = {
+      model: "gpt-4",
+      messages: llmMessage,
+      max_tokens: 300,
+      stream: true,
+    stop: stopWords(otherPlayer.playerName, player.playerName),
+    };
+
+    const response = await chatCompletion(params);
+    console.log('Chat completion response:', JSON.stringify(response, null, 2));
     
-//     const getConversationIdResult: { conversationId: string } = await ctx.runQuery(api.agentConversationHelper.getConversationId);
-//     const conversationId = getConversationIdResult.conversationId;
+    const messageContent = response.choices[0].message.content;
+    
+    const getConversationIdResult: { conversationId: string } = await ctx.runQuery(api.agentConversationHelper.getConversationId);
+    const conversationId = getConversationIdResult.conversationId;
 
-//     const createMessageresult = await ctx.runMutation(api.agentConversationHelper.createMessage, {
-//       worldId: args.worldId,
-//       conversationId: conversationId,
-//       author: args.playerId,
-//       text: content
-//     });
-//     const messageId: string = createMessageresult.messageId;
+    const createMessageresult = await ctx.runMutation(api.agentConversationHelper.createMessage, {
+      worldId: args.worldId,
+      conversationId: conversationId,
+      author: args.playerId,
+      text: messageContent
+    });
+    const messageId: string = createMessageresult.messageId;
 
-//     const createConversationResult = await ctx.runMutation(api.agentConversationHelper.createConversation, {
-//       worldId: args.worldId,
-//       playerId: args.playerId,
-//       otherPlayerId: args.otherPlayerId,
-//       messageId: messageId, 
-//       conversationId: conversationId
-//     });
+    const createConversationResult = await ctx.runMutation(api.agentConversationHelper.createConversation, {
+      worldId: args.worldId,
+      playerId: args.playerId,
+      otherPlayerId: args.otherPlayerId,
+      messageId: messageId, 
+      conversationId: conversationId
+    });
 
-//     return {
-//       conversationId: conversationId,
-//       messageId: messageId,
-//       content: content
-//     }
-//   }
-// });
+    return {
+      conversationId: conversationId,
+      messageId: messageId,
+      content: messageContent
+    }
+  }
+});
 
 
-// export async function leaveConversationMessage(
-//   ctx: ActionCtx,
-//   args: { worldId: Id<'worlds'>, convId: GameId<'conversations'>, playerId: GameId<'players'>, otherPlayerId: GameId<'players'> }
-// ) {
-//   const { player, otherPlayer, playerDescription, otherPlayerDescription } = await ctx.runQuery(
-//     selfInternal.queryPromptData,
-//     {
-//       worldId: args.worldId,
-//       playerId: args.playerId,
-//       otherPlayerId: args.otherPlayerId
-//     },
-//   );
-//   const prompt = [
-//     `You are ${player.playerName}, and you're currently in a conversation with ${otherPlayer.playerName}.`,
-//     `You've decided to leave the question and would like to politely tell them you're leaving the conversation.`,
-//   ];
+export async function leaveConversationMessage(
+  ctx: ActionCtx,
+  args: { worldId: Id<'worlds'>, convId: GameId<'conversations'>, playerId: GameId<'players'>, otherPlayerId: GameId<'players'> }
+) {
+  const { player, otherPlayer, playerDescription, otherPlayerDescription } = await ctx.runQuery(
+    selfInternal.queryPromptData,
+    {
+      worldId: args.worldId,
+      playerId: args.playerId,
+      otherPlayerId: args.otherPlayerId
+    },
+  );
+  const prompt = [
+    `You are ${player.playerName}, and you're currently in a conversation with ${otherPlayer.playerName}.`,
+    `You've decided to leave the question and would like to politely tell them you're leaving the conversation.`,
+  ];
  
-//   prompt.push(`About you:`);
-//   prompt.push(playerDescription);
-//   prompt.push(`About ${otherPlayer.playerName}: `);
-//   prompt.push(otherPlayerDescription);
-//   prompt.push(
-//     `Below is the current chat history between you and ${otherPlayer.playerName}.`,
-//     `How would you like to tell them that you're leaving? Your response should be brief and within 200 characters.`,
-//   );
-//   const llmMessages: LLMMessage[] = [
-//     {
-//       role: 'user',
-//       content: prompt.join('\n'),
-//     },
-//     ...(await previousMessages(
-//       ctx,
-//       args.worldId,
-//       player,
-//       otherPlayer,
-//       args.convId, // Updated to use args.convId
-//     )),
-//   ];
-//   llmMessages.push({ role: 'user', content: `${player.playerName}:` });
+  prompt.push(`About you:`);
+  prompt.push(playerDescription);
+  prompt.push(`About ${otherPlayer.playerName}: `);
+  prompt.push(otherPlayerDescription);
+  prompt.push(
+    `Below is the current chat history between you and ${otherPlayer.playerName}.`,
+    `How would you like to tell them that you're leaving? Your response should be brief and within 200 characters.`,
+  );
+  const llmMessages: LLMMessage[] = [
+    {
+      role: 'user',
+      content: prompt.join('\n'),
+    },
+    ...(await previousMessages(
+      ctx,
+      args.worldId,
+      toAgent(player),
+      toAgent(otherPlayer),
+      args.convId, // Updated to use args.convId
+    )),
+  ];
+  llmMessages.push({ role: 'user', content: `${player.playerName}:` });
 
-//   const { content } = await chatCompletion({
-//     model: 'gpt-4o',
-//     messages: llmMessages,
-//     max_tokens: 300,
-//     stream: true,
-//     stop: stopWords(otherPlayer.playerName, player.playerName),
-//   });
-
-
-//     const getConversationIdResult: { conversationId: string } = await ctx.runQuery(api.agentConversationHelper.getConversationId);
-//     const conversationId = getConversationIdResult.conversationId;
-
-//     const createMessageresult = await ctx.runMutation(api.agentConversationHelper.createMessage, {
-//       worldId: args.worldId,
-//       conversationId: conversationId,
-//       author: args.playerId,
-//       text: content
-//     });
-//     const messageId: string = createMessageresult.messageId;
-
-//     const createConversationResult = await ctx.runMutation(api.agentConversationHelper.createConversation, {
-//       worldId: args.worldId,
-//       playerId: args.playerId,
-//       otherPlayerId: args.otherPlayerId,
-//       messageId: messageId, 
-//       conversationId: conversationId
-//     });
+  const { content } = await chatCompletion({
+    model: 'gpt-4o',
+    messages: llmMessages,
+    max_tokens: 300,
+    stream: true,
+    stop: stopWords(otherPlayer.playerName, player.playerName),
+  });
 
 
-//   return {
-//     conversationId: conversationId,
-//     messageId: messageId,
-//     content: content
-//   }
-// }
+    const getConversationIdResult: { conversationId: string } = await ctx.runQuery(api.agentConversationHelper.getConversationId);
+    const conversationId = getConversationIdResult.conversationId;
 
-// function stopWords(otherPlayer: string, player: string) {
-//   // These are the words we ask the LLM to stop on. OpenAI only supports 4.
-//   const variants = [`${otherPlayer} to ${player}`];
-//   return variants.flatMap((stop) => [stop + ':', stop.toLowerCase() + ':']);
-// }
+    const createMessageresult = await ctx.runMutation(api.agentConversationHelper.createMessage, {
+      worldId: args.worldId,
+      conversationId: conversationId,
+      author: args.playerId,
+      text: content
+    });
+    const messageId: string = createMessageresult.messageId;
 
-// async function previousMessages(
-//   ctx: ActionCtx,
-//   worldId: Id<'worlds'>,
-//   player: Agent, 
-//   otherPlayer: Agent, 
-//   conversationId: GameId<'conversations'>,
-// ) {
-//   const llmMessages: LLMMessage[] = [];
-//   const prevMessages = await ctx.runQuery(selfInternal.queryPreviousMessages, {
-//     worldId: worldId,
-//     conversationId: conversationId as unknown as Id<'conversations'>
-//   }); 
-//   for (const message of prevMessages) {
-//     const author = message.author === player.playerId ? player : otherPlayer;
-//     const recipient = message.author === player.playerId ? otherPlayer : player;
-//     llmMessages.push({
-//       role: 'user',
-//       content: `${author.playerName} to ${recipient.playerName}: ${message.text}`,
-//     });
-//   }
-//   return llmMessages;
-// }
+    const createConversationResult = await ctx.runMutation(api.agentConversationHelper.createConversation, {
+      worldId: args.worldId,
+      playerId: args.playerId,
+      otherPlayerId: args.otherPlayerId,
+      messageId: messageId, 
+      conversationId: conversationId
+    });
 
-// export const queryPreviousMessages = internalQuery({
-//   args: {
-//     worldId: v.id('worlds'),
-//     conversationId: v.id('conversations')
-//   },
-//   handler: async (ctx, args) => {
-//     return ctx.db.query('messages')
-//       .withIndex('conversationId', (q) => q.eq('worldId', args.worldId).eq('conversationId', args.conversationId))
-//       .order('desc')
-//       .collect(); 
-//   }
-// });
 
-// export const queryConversation = internalQuery({
-//   args: {
-//     worldId: v.id('worlds'),
-//     conversationId: v.string()
-//   },
-//   handler: async (ctx, args) => {
-//     return ctx.db.query('conversations').withIndex('conversationId', (q) => q.eq('worldId', args.worldId).eq('conversationId', args.conversationId)).first();
-//   }
-// });
+  return {
+    conversationId: conversationId,
+    messageId: messageId,
+    content: content
+  }
+}
+
+function stopWords(otherPlayer: string, player: string) {
+  // These are the words we ask the LLM to stop on. OpenAI only supports 4.
+  const variants = [`${otherPlayer} to ${player}`];
+  return variants.flatMap((stop) => [stop + ':', stop.toLowerCase() + ':']);
+}
+
+async function previousMessages(
+  ctx: ActionCtx,
+  worldId: Id<'worlds'>,
+  player: Agent, 
+  otherPlayer: Agent, 
+  conversationId: GameId<'conversations'>,
+) {
+  const LLMMessages: LLMMessage[] = [];
+  const prevMessages = await ctx.runQuery(selfInternal.queryPreviousMessages, {
+    worldId: worldId,
+    conversationId: conversationId as unknown as Id<'conversations'>
+  }); 
+  for (const message of prevMessages) {
+    const author = message.author === player.playerId ? player : otherPlayer;
+    const recipient = message.author === player.playerId ? otherPlayer : player;
+    LLMMessages.push(
+      {
+        role: 'user',
+        content: `${author.playerName} to ${recipient.playerName}: ${message.text}`,
+      }
+    );
+  }
+  return LLMMessages;
+}
+
+export const queryPreviousMessages = internalQuery({
+  args: {
+    worldId: v.string(),
+    conversationId: v.string()
+  },
+  handler: async (ctx, args) => {
+    return ctx.db.query('messages')
+      .withIndex('conversationId', (q) => q.eq('worldId', args.worldId).eq('conversationId', args.conversationId))
+      .order('desc')
+      .collect(); 
+  }
+});
+
+export const queryConversation = internalQuery({
+  args: {
+    worldId: v.string(),
+    conversationId: v.string()
+  },
+  handler: async (ctx, args) => {
+    return ctx.db.query('conversations').withIndex('conversationId', (q) => q.eq('worldId', args.worldId).eq('conversationId', args.conversationId)).first();
+  }
+});
 
 export const queryPromptData = internalQuery({
   args: {
@@ -364,7 +380,7 @@ export const queryPromptData = internalQuery({
   },
   handler: async (ctx, args) => {
     console.log(args.playerId);
-    const player = await ctx.db.query("agents")
+    const player  = await ctx.db.query("agents")
       .withIndex("playerId", (q) => 
         q.eq("worldId", args.worldId).eq("playerId", args.playerId)
       )
