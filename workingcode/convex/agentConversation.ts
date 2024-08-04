@@ -1,16 +1,22 @@
-import type { Id } from './_generated/dataModel';
+import type { Doc, Id } from './_generated/dataModel';
 import { ActionCtx, internalQuery, action, mutation, query } from './_generated/server';
 import { LLMMessage, chatCompletion } from './util/llm';
 import { api, internal } from './_generated/api';
 import { GameId, conversationId, playerId } from './ids';
 import { NUM_MEMORIES_TO_SEARCH } from './constants';
-import * as memory from './Agent/memory';
 import * as embeddingsCache from './Agent/embeddingsCache';
 import * as agentConversation from './agentConversation';
 import { v } from 'convex/values';
 import { Agent } from './Agent/agent';
 import { toAgent } from './Agent/agent';
+import { client } from './client';
+import { searchMemories, rememberConversation } from './agentConversationHelper';
 
+export type Memory = Doc<'episodicMemories'>;
+export type MemoryType = Memory['data']['type'];
+export type MemoryOfType<T extends MemoryType> = Omit<Memory, 'data'> & {
+  data: Extract<Memory['data'], { type: T }>;
+};
 const selfInternal = internal.agentConversation;
 const messageValidator = v.object({
   conversationId: v.string(),
@@ -36,21 +42,21 @@ export const startConversationMessageAction = action({
         worldId: args.worldId as Id<'worlds'> 
       },
     ) ;
-    // const embedding = await embeddingsCache.fetch(
-    //   ctx,
-    //   `${player.playerId} is talking to ${otherPlayer.playerId}`,
-    // );
+    const embedding = await embeddingsCache.fetch(
+      ctx,
+      `${player.playerId} is talking to ${otherPlayer.playerId}`,
+    );
 
-    // const memories = await memory.searchMemories(
-    //   ctx,
-    //   player.playerId as unknown as GameId<'players'>,
-    //   embedding,
-    //   Number(process.env.NUM_MEMORIES_TO_SEARCH) || NUM_MEMORIES_TO_SEARCH,
-    // );
+    const memories = await searchMemories(
+      ctx,
+      player.playerId as unknown as GameId<'players'>,
+      embedding,
+      Number(process.env.NUM_MEMORIES_TO_SEARCH) || NUM_MEMORIES_TO_SEARCH,
+    );
 
-    // const memoryWithOtherPlayer = memories.find(
-    //   (m : any) => m.data.type === 'conversation' && m.data.playerIds.includes(args.otherPlayerId),
-    // );
+    const memoryWithOtherPlayer = memories.find(
+      (m : any) => m.data.type === 'conversation' && m.data.playerIds.includes(args.otherPlayerId),
+    );
     const prompt = [
       `You are ${player.playerName}, and you just started a conversation with ${otherPlayer.playerName}.`,
     ];
@@ -58,14 +64,13 @@ export const startConversationMessageAction = action({
     prompt.push(playerDescription);
     prompt.push(`About ${otherPlayer.playerName}: `);
     prompt.push(otherPlayerDescription);
-    // prompt.push(...previousConversationPrompt(otherPlaye.playerName, lastConversation));
-    // prompt.push(...relatedMemoriesPrompt(memories));
-    // if (memoryWithOtherPlayer) {
-    //   prompt.push(
-    //     `Be sure to include some detail or question about a previous conversation in your greeting.`,
-    //   );
-    // }
-    // prompt.push(`${player.playerName}:`);
+    prompt.push(...relatedMemoriesPrompt(memories));
+    if (memoryWithOtherPlayer) {
+      prompt.push(
+        `Be sure to include some detail or question about a previous conversation in your greeting.`,
+      );
+    }
+    prompt.push(`${player.playerName}:`);
 
     prompt.push(`Now please start a converaation with ${otherPlayer.playerName}.`);
 
@@ -156,17 +161,17 @@ export const continueConversationMessageAction = action({
 
     const now = Date.now();
     // const started = new Date(conversation.createdAt);
-    // const embedding = await embeddingsCache.fetch(
-    //   ctx,
-    //   `What do you think about ${otherPlayer.name}?`,
-    // );
+    const embedding = await embeddingsCache.fetch(
+      ctx,
+      `What do you think about ${otherPlayer.playerName}?`,
+    );
     
-    // const memories = await memory.searchMemories(ctx, player.id as GameId<'players'>, embedding, 3);
+    const memories = await searchMemories(ctx, player.playerId as GameId<'players'>, embedding, 3);
     const prompt = [
       `You are ${player.playerName}, and you're currently in a conversation with ${otherPlayer.playerName}.`,
       `The conversation started at ${conversation.createdAt}. It's now ${now.toLocaleString()}.`,
     ];
-    // prompt.push(...relatedMemoriesPrompt(memories));
+    prompt.push(...relatedMemoriesPrompt(memories));
     prompt.push(`About you:`);
     prompt.push(playerDescription);
     prompt.push(`About ${otherPlayer.playerName}: `);
@@ -205,7 +210,6 @@ export const continueConversationMessageAction = action({
       model: "gpt-4",
       messages: llmMessage,
       max_tokens: 300,
-      stream: true,
     stop: stopWords(otherPlayer.playerName, player.playerName),
     };
 
@@ -242,54 +246,61 @@ export const continueConversationMessageAction = action({
 });
 
 
-export async function leaveConversationMessage(
-  ctx: ActionCtx,
-  args: { worldId: Id<'worlds'>, convId: GameId<'conversations'>, playerId: GameId<'players'>, otherPlayerId: GameId<'players'> }
-) {
-  const { player, otherPlayer, playerDescription, otherPlayerDescription } = await ctx.runQuery(
-    selfInternal.queryPromptData,
-    {
-      worldId: args.worldId,
-      playerId: args.playerId,
-      otherPlayerId: args.otherPlayerId
-    },
-  );
-  const prompt = [
-    `You are ${player.playerName}, and you're currently in a conversation with ${otherPlayer.playerName}.`,
-    `You've decided to leave the question and would like to politely tell them you're leaving the conversation.`,
-  ];
- 
-  prompt.push(`About you:`);
-  prompt.push(playerDescription);
-  prompt.push(`About ${otherPlayer.playerName}: `);
-  prompt.push(otherPlayerDescription);
-  prompt.push(
-    `Below is the current chat history between you and ${otherPlayer.playerName}.`,
-    `How would you like to tell them that you're leaving? Your response should be brief and within 200 characters.`,
-  );
-  const llmMessages: LLMMessage[] = [
-    {
-      role: 'user',
-      content: prompt.join('\n'),
-    },
-    ...(await previousMessages(
-      ctx,
-      args.worldId,
-      toAgent(player),
-      toAgent(otherPlayer),
-      args.convId, // Updated to use args.convId
-    )),
-  ];
-  llmMessages.push({ role: 'user', content: `${player.playerName}:` });
+export const leaveConversationMessageAction = action({
+  args: {
+    worldId: v.string(),
+    conversationId: v.string(),
+    playerId: v.string(),
+    otherPlayerId: v.string()
+  },
+  handler: async (ctx: ActionCtx, args: { worldId: Id<'worlds'>, conversationId: GameId<'conversations'>, playerId: GameId<'players'>, otherPlayerId: GameId<'players'> }) => {
+    const { player, otherPlayer, playerDescription, otherPlayerDescription } = await ctx.runQuery(
+      selfInternal.queryPromptData,
+      {
+        worldId: args.worldId,
+        playerId: args.playerId,
+        otherPlayerId: args.otherPlayerId
+      },
+    );
+    const prompt = [
+      `You are ${player.playerName}, and you're currently in a conversation with ${otherPlayer.playerName}.`,
+      `You've decided to leave the conversation and would like to politely tell them you're leaving the conversation.`,
+    ];
+   
+    prompt.push(`About you:`);
+    prompt.push(playerDescription);
+    prompt.push(`About ${otherPlayer.playerName}: `);
+    prompt.push(otherPlayerDescription);
+    prompt.push(
+      `Below is the current chat history between you and ${otherPlayer.playerName}.`,
+      `How would you like to tell them that you're leaving? Your response should be brief and within 200 characters.`,
+    );
+    const llmMessages: LLMMessage[] = [
+      {
+        role: 'user',
+        content: prompt.join('\n'),
+      },
+      ...(await previousMessages(
+        ctx,
+        args.worldId,
+        toAgent(player),
+        toAgent(otherPlayer),
+        args.conversationId, // Updated to use args.convId
+      )),
+    ];
+    llmMessages.push({ role: 'user', content: `${player.playerName}:` });
 
-  const { content } = await chatCompletion({
-    model: 'gpt-4o',
-    messages: llmMessages,
-    max_tokens: 300,
-    stream: true,
-    stop: stopWords(otherPlayer.playerName, player.playerName),
-  });
+    const params = {
+      model: "gpt-4",
+      messages: llmMessages,
+      max_tokens: 300,
+      stop: stopWords(otherPlayer.playerName, player.playerName),
+    };
 
+    const response = await chatCompletion(params);
+    console.log('Chat completion response:', JSON.stringify(response, null, 2));
+    
+    const messageContent = response.choices[0].message.content;
 
     const getConversationIdResult: { conversationId: string } = await ctx.runQuery(api.agentConversationHelper.getConversationId);
     const conversationId = getConversationIdResult.conversationId;
@@ -298,7 +309,7 @@ export async function leaveConversationMessage(
       worldId: args.worldId,
       conversationId: conversationId,
       author: args.playerId,
-      text: content
+      text: messageContent
     });
     const messageId: string = createMessageresult.messageId;
 
@@ -310,13 +321,15 @@ export async function leaveConversationMessage(
       conversationId: conversationId
     });
 
+    await rememberConversation(ctx, args.worldId,  args.playerId, conversationId as unknown as GameId<'conversations'> );
 
-  return {
-    conversationId: conversationId,
-    messageId: messageId,
-    content: content
+    return {
+      conversationId: conversationId,
+      messageId: messageId,
+      content: messageContent
+    }
   }
-}
+});
 
 function stopWords(otherPlayer: string, player: string) {
   // These are the words we ask the LLM to stop on. OpenAI only supports 4.
@@ -395,9 +408,9 @@ export const queryPromptData = internalQuery({
     You are a ${player.basePersonalityInfo.openness} on the openness scale. 
     You are a ${player.basePersonalityInfo.conscientiousness} on the conscientiousness scale. 
     You are a ${player.basePersonalityInfo.agreeableness} on the agreeableness scale. 
-    You are a ${player.basePersonalityInfo.neuroticism} on the neuroticism scale. 
+    You are a ${player.basePersonalityInfo.neuroticism} on the neuroticism scale. s
     Your skills include: ${player.baseSkillsInfo.skills.join(', ')}. 
-    Keywords associated with you are: ${player.basePersonalityInfo.keywords.join(', ')}.`;
+    Interests associated with you are: ${player.basePersonalityInfo.interests.join(', ')}.`;
 
     if (player.inProgressOperation) {
       playerDescription += `You are currently working on ${player.inProgressOperation.name} with id ${player.inProgressOperation.operationId}.`;
@@ -420,7 +433,7 @@ export const queryPromptData = internalQuery({
     ${otherPlayer.basePersonalityInfo.agreeableness} on the agreeableness scale, 
     and ${otherPlayer.basePersonalityInfo.neuroticism} on the neuroticism scale. 
     Their skills include: ${otherPlayer.baseSkillsInfo.skills.join(', ')}. 
-    Keywords associated with them are: ${otherPlayer.basePersonalityInfo.keywords.join(', ')}.`;
+    Interests associated with them are: ${otherPlayer.basePersonalityInfo.interests.join(', ')}.`;
 
     if (otherPlayer.inProgressOperation) {
       otherPlayerDescription += `They are currently working on ${otherPlayer.inProgressOperation.name} with id ${otherPlayer.inProgressOperation.operationId}.`;
@@ -434,3 +447,30 @@ export const queryPromptData = internalQuery({
     };
   },
 });
+
+
+export async function endConversationMessage(worldId: Id<'worlds'>, conversationId: Id<'conversations'>, playerId: GameId<'players'>, otherPlayerId: GameId<'players'>) {
+   try {
+      const result = await client.action(api.agentConversation.leaveConversationMessageAction, {
+        worldId: worldId,
+        conversationId: conversationId as unknown as GameId<'conversations'>, 
+        playerId: playerId,
+        otherPlayerId: otherPlayerId
+      });
+   } catch (error) {
+    console.error(error);
+   }
+}
+
+
+
+function relatedMemoriesPrompt(memories : agentConversation.Memory[]): string[] {
+  const prompt = [];
+  if (memories.length > 0) {
+    prompt.push(`Here are some related memories in decreasing relevance order:`);
+    for (const memory of memories) {
+      prompt.push(' - ' + memory.description);
+    }
+  }
+  return prompt;
+}

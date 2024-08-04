@@ -54,17 +54,17 @@ export class basePersonality {
     conscientiousness: number; // 0 - 100 disorganized to organized
     agreeableness: number; // 0 - 100 antagonistic to agreeable
     neuroticism: number; // 0 - 100 emotionally stable to emotionally unstable
-    // self-reported personality keywords
-    keywords: Array<string>; 
-    values: Array<string>; // keywords that describe the personality such as energetic, creative, etc.
+    // self-reported personality interests
+    interests: Array<string>; 
+    values: Array<string>; // interests that describe the personality such as energetic, creative, etc.
 
-        constructor(introversion: number, openness: number, conscientiousness: number, agreeableness: number, neuroticism: number, keywords: Array<string>, values: Array<string>) {
+        constructor(introversion: number, openness: number, conscientiousness: number, agreeableness: number, neuroticism: number, interests: Array<string>, values: Array<string>) {
         this.introversion = introversion;
         this.openness = openness;
         this.conscientiousness = conscientiousness;
         this.agreeableness = agreeableness;
         this.neuroticism = neuroticism;
-        this.keywords = keywords;
+        this.interests = interests;
         this.values = values;
     }
 }
@@ -107,7 +107,7 @@ export const serializedAgent = {
                 conscientiousness: v.number(),
                 agreeableness: v.number(),
                 neuroticism: v.number(),
-                keywords: v.array(v.string()),
+                interests: v.array(v.string()),
                 values: v.array(v.string())
             }
         ), 
@@ -198,7 +198,7 @@ const agentDataValidator = v.object({
       conscientiousness: v.number(),
       agreeableness: v.number(),
       neuroticism: v.number(),
-      keywords: v.array(v.string()),
+      interests: v.array(v.string()),
       values: v.array(v.string()), 
     }),
     baseSkillsInfo: v.object({

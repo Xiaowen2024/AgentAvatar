@@ -1,6 +1,6 @@
 import { client } from "../client";
 import { api } from "../_generated/api";
-import { Id } from "../_generated/dataModel";
+import { Id, GameId } from "../_generated/dataModel";
 
 async function testContinueConversationMessageAction() {
     try {
@@ -11,13 +11,23 @@ async function testContinueConversationMessageAction() {
       });
       console.log(result);
       if (result.conversationId !== undefined) {
-        const continueResult = await client.action(api.agentConversation.continueConversationMessageAction, {
-          playerId: "p:2",
-          otherPlayerId: "p:1",
+        let conversationId = result.conversationId as GameId<'conversations'>;
+        for (let i = 0; i < 3; i++) { 
+          const continueResult = await client.action(api.agentConversation.continueConversationMessageAction, {
+            playerId: i % 2 === 0 ? "p:2" : "p:1", 
+            otherPlayerId: i % 2 === 0 ? "p:1" : "p:2",
+            worldId: 'w:1' as Id<'worlds'>,
+            conversationId: conversationId,
+          });
+          console.log(continueResult);
+          conversationId = continueResult.conversationId as GameId<'conversations'>; 
+        }
+        const leaveResult = await client.action(api.agentConversation.leaveConversationMessageAction, {
           worldId: 'w:1' as Id<'worlds'>,
-          conversationId: result.conversationId as Id<'conversations'>,
+          conversationId: conversationId as GameId<'conversations'>,
+          playerId: "p:1" as GameId<'players'>, 
+          otherPlayerId: "p:2" as GameId<'players'>,
         });
-        console.log(continueResult);
       } else {
         console.log("Failed");
       }

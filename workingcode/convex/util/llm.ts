@@ -149,52 +149,28 @@ export async function tryPullOllama(model: string, error: string) {
 }
 
 export async function fetchEmbeddingBatch(texts: string[]) {
-  if (LLM_CONFIG.ollama) {
-    return {
-      ollama: true as const,
-      embeddings: await Promise.all(
-        texts.map(async (t) => (await ollamaFetchEmbedding(t)).embedding),
-      ),
-    };
-  }
-  assertApiKey();
-  const {
-    result: json,
-    retries,
-    ms,
-  } = await retryWithBackoff(async () => {
-    const result = await fetch(apiUrl('/v1/embeddings'), {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        ...AuthHeaders(),
-      },
-
-      body: JSON.stringify({
-        model: LLM_CONFIG.embeddingModel,
-        input: texts.map((text) => text.replace(/\n/g, ' ')),
-      }),
-    });
-    if (!result.ok) {
-      throw {
-        retry: result.status === 429 || result.status >= 500,
-        error: new Error(`Embedding failed with code ${result.status}: ${await result.text()}`),
-      };
-    }
-    return (await result.json()) as CreateEmbeddingResponse;
+  const result = await fetch("https://api.openai.com/v1/embeddings", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: "Bearer " + "apikey",
+    },
+    body: JSON.stringify({
+      model: "text-embedding-ada-002",
+      input: texts.map((text) => text.replace(/\n/g, ' ')),
+    }),
   });
-  if (json.data.length !== texts.length) {
-    console.error(json);
+  const jsonresults = await result.json();
+  if (jsonresults.data.length !== texts.length) {
+    console.error(jsonresults);
     throw new Error('Unexpected number of embeddings');
   }
-  const allembeddings = json.data;
-  allembeddings.sort((a, b) => a.index - b.index);
+  const allembeddings = jsonresults.data;
+  allembeddings.sort((a: { index: number }, b: { index: number }) => a.index - b.index);
   return {
     ollama: false as const,
-    embeddings: allembeddings.map(({ embedding }) => embedding),
-    usage: json.usage?.total_tokens,
-    retries,
-    ms,
+    embeddings: allembeddings.map(({ embedding }: { embedding: number[] }) => embedding),
+    usage: jsonresults.usage?.total_tokens,
   };
 }
 
@@ -696,7 +672,7 @@ export async function chatCompletion(params: ChatCompletionParams) {
       },
       {
         headers: {
-          'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+          'Authorization': `Bearer api-key`,
           'Content-Type': 'application/json',
         },
       }
@@ -722,7 +698,7 @@ export async function visualQuery(params: visualQueryParams) {
       },
       {
         headers: {
-          'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+          'Authorization': `Bearer api-key`,
           'Content-Type': 'application/json',
         },
       }
