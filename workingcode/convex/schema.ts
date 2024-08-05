@@ -29,27 +29,36 @@ export const episodicMemoryFields = {
       type: v.literal('visualinput'),
       visualinputId:  v.optional(v.string())
     }),
-    v.object({
-      type: v.literal('reflection'),
-      relatedMemoryIds: v.array(v.id('memories')),
-    }),
   ),
 };
 
+const personalSemanticMemoryTypes = ["self-knowledge", "autographical-facts", "repeated-events"] as const;
+
 export const semanticMemoryFields = {
   playerId : playerId,
-  conceptId : v.id('concepts'),
-  description: v.string(),
+  nodeId: v.string(),
+  type: v.union(...personalSemanticMemoryTypes.map(v.literal)),
+  content: v.string(),
   embeddingId: v.id('memoryEmbeddings'),
-  strength: v.number(),
+  importance: v.number(),
   lastAccess: v.number(),
-  relation:  v.object({
-    type: v.literal('relationship'),
-    relatedConceptIds: v.array(v.id('concepts')),
-    relationshipType: v.string(),
-  })
-};
-
+  emotion: v.optional(v.string()),
+  data: v.union(
+    v.object({
+      type: v.literal('episodicMemory'),
+      episodicMemoryId: v.optional(v.string()),
+    }),
+    v.object({
+        type: v.literal('textinput'),
+        textinputId:  v.optional(v.string())
+    }),
+    v.object({
+      type: v.literal('visualinput'),
+      visualinputId:  v.optional(v.string())
+    }),
+  ),
+  relatedSemanticMemoryIds: v.array(v.string()),
+}; 
 
 export const memoryTables = {
   episodicMemories: defineTable(episodicMemoryFields)
@@ -59,7 +68,8 @@ export const memoryTables = {
 
   semanticMemories: defineTable(semanticMemoryFields)
     .index('embeddingId', ['embeddingId'])
-    .index('playerId', ['playerId']),
+    .index('playerId', ['playerId'])
+    .index('type', ['type']),
 
   memoryEmbeddings: defineTable({
     playerId,
@@ -104,8 +114,17 @@ export default defineSchema({
       conscientiousness: v.number(),
       agreeableness: v.number(),
       neuroticism: v.number(),
+      conformity: v.number(),
+      tradition: v.number(),
+      benevolence: v.number(),
+      universalism: v.number(),
+      selfdirection: v.number(),
+      stimulation: v.number(),
+      hedonism: v.number(),
+      achievement: v.number(),
+      power: v.number(),
+      security: v.number(),
       interests: v.array(v.string()),
-      values: v.array(v.string()),
     }),
     baseSkillsInfo: v.object({
       skills: v.array(v.string()),

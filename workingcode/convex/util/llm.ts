@@ -153,7 +153,7 @@ export async function fetchEmbeddingBatch(texts: string[]) {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: "Bearer " + "apikey",
+      Authorization: "Bearer " ,
     },
     body: JSON.stringify({
       model: "text-embedding-ada-002",
@@ -638,6 +638,11 @@ export async function ollamaFetchEmbedding(text: string) {
 }
 
 import axios from 'axios';
+// import https from 'https';
+
+// const httpsAgent = new https.Agent({
+//   rejectUnauthorized: false, // Ignore self-signed certificates
+// });
 
 export interface ChatCompletionParams {
   model: string;
@@ -646,7 +651,6 @@ export interface ChatCompletionParams {
   stream?: boolean;
   stop?: string[];
 }
-
 
 export interface visualQueryParams {
   model: string;
@@ -672,9 +676,10 @@ export async function chatCompletion(params: ChatCompletionParams) {
       },
       {
         headers: {
-          'Authorization': `Bearer api-key`,
+          'Authorization': `Bearer `,
           'Content-Type': 'application/json',
         },
+        // httpsAgent, // Add the custom https agent
       }
     );
     return response.data;
@@ -698,9 +703,10 @@ export async function visualQuery(params: visualQueryParams) {
       },
       {
         headers: {
-          'Authorization': `Bearer api-key`,
+          'Authorization': `Bearer `,
           'Content-Type': 'application/json',
         },
+        // httpsAgent, // Add the custom https agent
       }
     );
     return response.data;

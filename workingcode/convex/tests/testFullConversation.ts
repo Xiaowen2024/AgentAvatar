@@ -1,6 +1,7 @@
 import { client } from "../client";
 import { api } from "../_generated/api";
-import { Id, GameId } from "../_generated/dataModel";
+import { Id} from "../_generated/dataModel";
+import { GameId } from "../ids";
 
 async function testContinueConversationMessageAction() {
     try {
@@ -15,9 +16,9 @@ async function testContinueConversationMessageAction() {
         for (let i = 0; i < 3; i++) { 
           const continueResult = await client.action(api.agentConversation.continueConversationMessageAction, {
             playerId: i % 2 === 0 ? "p:2" : "p:1", 
-            otherPlayerId: i % 2 === 0 ? "p:1" : "p:2",
+            otherPlayerId: i % 2 === 0 ? "p:1" : "p:2", 
             worldId: 'w:1' as Id<'worlds'>,
-            conversationId: conversationId,
+            conversationId: conversationId as unknown as Id<'conversations'> ,
           });
           console.log(continueResult);
           conversationId = continueResult.conversationId as GameId<'conversations'>; 

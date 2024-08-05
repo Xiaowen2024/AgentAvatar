@@ -21,7 +21,6 @@ def predict_emotion(text):
     predicted_emotion = model.config.id2label[predicted_class_id]
     # Convert to dictionary
     output_dict = {
-        "text": text,
         "predicted_emotion": predicted_emotion,
         "probabilities": {model.config.id2label[i]: prob.item() for i, prob in enumerate(probabilities[0])}
     }

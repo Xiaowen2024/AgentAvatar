@@ -1,0 +1,17 @@
+/* Reset default margin and padding */
+html, body {
+  margin: 0;
+  padding: 0;
+}
+
+.App {
+  text-align: center;
+  background-color: #f0f0f0; /* Change this to your desired color */
+  min-height: 100vh; /* Ensure the background covers the full height */
+}
+
+button {
+  margin: 10px;
+  padding: 10px 20px;
+  font-size: 16px;
+}

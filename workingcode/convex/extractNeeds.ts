@@ -104,7 +104,8 @@ export async function extractNeedsFromText(text: string){
         const response = await chatCompletion(params);
         const result = JSON.parse(response.choices[0].message.content.replace(/NA/g, '"NA"'));
         if (isValidResponse(result)) {
-            console.log('Valid Response:', result);
+            console.log(result);
+            return result;
         } else {
             console.error('Invalid Response:', result);
         }
@@ -112,3 +113,4 @@ export async function extractNeedsFromText(text: string){
         console.error('Error:', error);
     }
 }
+

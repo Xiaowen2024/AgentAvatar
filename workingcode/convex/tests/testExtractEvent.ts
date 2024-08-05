@@ -1,7 +1,7 @@
 import { extractEvent } from "../extractEvent";
 
 export function testExtractEvent() {
-    const event = extractEvent("I went to the store and bought some food.");
+    const event = extractEvent("She attended the conference in New York last week.");
     console.log(event);
 }
 

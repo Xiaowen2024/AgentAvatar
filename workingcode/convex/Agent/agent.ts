@@ -1,4 +1,4 @@
-import { GameId, parseGameId, textinputId, playerId, agentId, worldId} from '../ids';
+import { GameId, parseGameId, playerId,  worldId} from '../ids';
 import { Game, IdManager } from '../game';
 import { ObjectType, v } from 'convex/values';
 import { MutationCtx, internalMutation, internalQuery } from '../_generated/server';
@@ -55,17 +55,36 @@ export class basePersonality {
     agreeableness: number; // 0 - 100 antagonistic to agreeable
     neuroticism: number; // 0 - 100 emotionally stable to emotionally unstable
     // self-reported personality interests
-    interests: Array<string>; 
-    values: Array<string>; // interests that describe the personality such as energetic, creative, etc.
+    conformity : number;
+    tradition : number
+    benevolence: number; // Added missing type annotation for benevolence
+    universalism: number; // Added missing type annotation for universalism
+    selfdirection: number; // Added missing type annotation for self-direction
+    stimulation: number; // Added missing type annotation for stimulation
+    hedonism: number; // Added missing type annotation for hedonism
+    achievement: number; // Added missing type annotation for achievement
+    power: number; // Added missing type annotation for power
+    security: number; // Added missing type annotation for security
 
-        constructor(introversion: number, openness: number, conscientiousness: number, agreeableness: number, neuroticism: number, interests: Array<string>, values: Array<string>) {
+    interests: Array<string>;  // interests that describe the personality such as energetic, creative, etc.
+
+        constructor(introversion: number, openness: number, conscientiousness: number, agreeableness: number, neuroticism: number, conformity: number,tradition: number, benevolence: number, universalism: number, selfdirection: number, stimulation: number, hedonism: number, achievement: number, power: number, security: number, interests: Array<string>) {
         this.introversion = introversion;
         this.openness = openness;
         this.conscientiousness = conscientiousness;
         this.agreeableness = agreeableness;
         this.neuroticism = neuroticism;
         this.interests = interests;
-        this.values = values;
+        this.conformity = conformity;
+        this.tradition = tradition;
+        this.benevolence = benevolence;
+        this.universalism = universalism;
+        this.selfdirection = selfdirection;
+        this.stimulation = stimulation;
+        this.hedonism = hedonism;
+        this.achievement = achievement;
+        this.power = power;
+        this.security = security;
     }
 }
 
@@ -107,8 +126,18 @@ export const serializedAgent = {
                 conscientiousness: v.number(),
                 agreeableness: v.number(),
                 neuroticism: v.number(),
+                conformity: v.number(),
+                tradition: v.number(),
+                benevolence: v.number(),
+                universalism: v.number(),
+                selfdirection: v.number(),
+                stimulation: v.number(),
+                hedonism: v.number(),
+                achievement: v.number(),
+                power: v.number(),
+                security: v.number(),
                 interests: v.array(v.string()),
-                values: v.array(v.string())
+                
             }
         ), 
 
@@ -198,8 +227,17 @@ const agentDataValidator = v.object({
       conscientiousness: v.number(),
       agreeableness: v.number(),
       neuroticism: v.number(),
+      conformity: v.number(),
+      tradition: v.number(),
+      benevolence: v.number(),
+      universalism: v.number(),
+      selfdirection: v.number(),
+      stimulation: v.number(),
+      hedonism: v.number(),
+      achievement: v.number(),
+      power: v.number(),
+      security: v.number(),
       interests: v.array(v.string()),
-      values: v.array(v.string()), 
     }),
     baseSkillsInfo: v.object({
       skills: v.array(v.string()),
