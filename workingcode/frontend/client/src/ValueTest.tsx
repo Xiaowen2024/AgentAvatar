@@ -2,6 +2,7 @@ import React, { useState, useContext } from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import { ScoresContext } from "./ScoresContext.tsx";
+import { useLocation } from 'react-router-dom';
 
 const valueQuestions = [
   "Thinking up new ideas and being creative is important to me. I like to do things in my own original way.",
@@ -84,66 +85,108 @@ const SubmitButton = styled(Button)`
 
 
 const valueMappings: { [key: string]: number[] } = {
-    "Conformity": [7, 16],
-    "Tradition": [9, 20],
-    "Benevolence": [12, 18],
-    "Universalism": [3, 8, 19],
-    "Self-Direction": [1, 11],
-    "Stimulation": [6, 15],
-    "Hedonism": [10, 21],
-    "Achievement": [4, 13],
-    "Power": [2, 17],
-    "Security": [5, 14]
+    "conformity": [7, 16],
+    "tradition": [9, 20],
+    "benevolence": [12, 18],
+    "universalism": [3, 8, 19],
+    "selfdirection": [1, 11],
+    "stimulation": [6, 15],
+    "hedonism": [10, 21],
+    "achievement": [4, 13],
+    "power": [2, 17],
+    "security": [5, 14]
 };
+
+// type ButtonState = { [key: number]: string };
+
+// const ValueTest: React.FC = () => {
+// //   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+//   const [responses, setResponses] = useState<number[]>(new Array(valueQuestions.length).fill(0));
+//   const [selectedButtons, setSelectedButtons] = useState<ButtonState>({});
+//   const { setScores } = useContext(ScoresContext);
+//   const navigate = useNavigate();
+//     const handleAnswerClick = (index: number, response: number) => {
+//         if (index > 0) {
+//             const newResponses = [...responses];
+//             newResponses[index - 1] = response;
+//             setResponses(newResponses);
+//         }
+//         const newSelectedButtons = { ...selectedButtons };
+//         newSelectedButtons[index] = response.toString();
+//         setSelectedButtons(newSelectedButtons);
+//     };
+
+//     const calculateValues = () => {
+//         const valueScores: { [key: string]: number } = {};
+//         for (const value in valueMappings) {
+//             const questions = valueMappings[value];
+//             let rawScore = 0;
+//             for (const questionIndex of questions) {
+//                 rawScore += responses[questionIndex - 1];
+//             }
+//             const percentile = (rawScore / (6 * questions.length)) * 100;
+//             valueScores[value] = percentile;
+//         }
+//         displayResults(valueScores);
+//         setScores(valueScores);
+//         navigate('/initialization');
+//     };
+
+//     const displayResults = (valueScores: { [key: string]: number }) => {
+//         for (const value in valueScores) {
+//             console.log(`${value} Percentile: ${valueScores[value]}`);
+//         }
+//     };
+
+//     const getAllScores = (valueScores: { [key: string]: number }): { [key: string]: number } => {
+//         let allScores: { [key: string]: number } = {};
+//         for (let i = 0; i < valueQuestions.length; i++) {
+//             allScores[valueQuestions[i]] = responses[i];
+//         }
+//         return allScores;
+//     };
 
 type ButtonState = { [key: number]: string };
 
 const ValueTest: React.FC = () => {
-//   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [responses, setResponses] = useState<number[]>(new Array(valueQuestions.length).fill(0));
   const [selectedButtons, setSelectedButtons] = useState<ButtonState>({});
-  const { setScores } = useContext(ScoresContext);
+  const location = useLocation();
+  const personalityScores = location.state?.scores;
   const navigate = useNavigate();
-    const handleAnswerClick = (index: number, response: number) => {
-        if (index > 0) {
-            const newResponses = [...responses];
-            newResponses[index - 1] = response;
-            setResponses(newResponses);
-        }
-        const newSelectedButtons = { ...selectedButtons };
-        newSelectedButtons[index] = response.toString();
-        setSelectedButtons(newSelectedButtons);
-    };
 
-    const calculateValues = () => {
-        const valueScores: { [key: string]: number } = {};
-        for (const value in valueMappings) {
-            const questions = valueMappings[value];
-            let rawScore = 0;
-            for (const questionIndex of questions) {
-                rawScore += responses[questionIndex - 1];
-            }
-            const percentile = (rawScore / (6 * questions.length)) * 100;
-            valueScores[value] = percentile;
-        }
-        displayResults(valueScores);
-        navigate('/initialization');
-        setScores(valueScores);
-    };
+  const handleAnswerClick = (index: number, response: number) => {
+    const newResponses = [...responses];
+    newResponses[index] = response;
+    setResponses(newResponses);
 
-    const displayResults = (valueScores: { [key: string]: number }) => {
-        for (const value in valueScores) {
-            console.log(`${value} Percentile: ${valueScores[value]}`);
-        }
-    };
+    const newSelectedButtons = { ...selectedButtons };
+    newSelectedButtons[index] = response.toString();
+    setSelectedButtons(newSelectedButtons);
+  };
 
-    const getAllScores = (valueScores: { [key: string]: number }): { [key: string]: number } => {
-        let allScores: { [key: string]: number } = {};
-        for (let i = 0; i < valueQuestions.length; i++) {
-            allScores[valueQuestions[i]] = responses[i];
-        }
-        return allScores;
-    };
+  const handleSubmit = () => {
+    const valueScores = calculateValues();
+    localStorage.setItem('valueScores', JSON.stringify(valueScores));
+
+    navigate('/initialization');
+  };
+
+  const calculateValues = () => {
+    let valueScores : { [key: string]: number } = {};
+    for (const value in valueMappings) {
+      const questions = valueMappings[value];
+      let rawScore = 0;
+      for (const questionIndex of questions) {
+        rawScore += responses[questionIndex - 1];
+      }
+      const percentile = (rawScore / (6 * questions.length)) * 100;
+      valueScores[value] = percentile;
+    }
+    return valueScores;
+
+    
+  };
 
   return (
     <Container>
@@ -160,7 +203,7 @@ const ValueTest: React.FC = () => {
           ))}
         </QuestionContainer>
       ))}
-      <SubmitButton onClick={calculateValues}>Submit</SubmitButton>
+      <SubmitButton onClick={handleSubmit}>Submit</SubmitButton>
     </Container>
   );
 };

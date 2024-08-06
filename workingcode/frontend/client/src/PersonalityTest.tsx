@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { ScoresContext } from "./ScoresContext.tsx";
 
 const questions = [
+  "I am someone who tends to be quiet.", 
   "I am someone who is compassionate, has a soft heart.",
   "I am someone who tends to be disorganized.",
   "I am someone who worries a lot.",
@@ -97,28 +98,34 @@ const PersonalityTest: React.FC = () => {
     const agreeableness = responses[1] + (5 - responses[6]) + responses[11];
     const conscientiousness = (5 - responses[2]) + (5 - responses[7]) + responses[12];
     const negativeEmotionality = responses[3] + responses[8] + (5 - responses[13]);
+    console.log("4" +responses[4]);
+    console.log("9" +responses[9]);
+    console.log("14" +responses[14]);
     const openMindedness = responses[4] + (5 - responses[9]) + responses[14];
     const extraversionPercentile = (extraversion / 15) * 100;
     const agreeablenessPercentile = (agreeableness / 15) * 100;
     const conscientiousnessPercentile = (conscientiousness / 15) * 100;
     const negativeEmotionalityPercentile = (negativeEmotionality / 15) * 100;
-    const openMindednessPercentile = (openMindedness / 15) * 100;
+    const openMindednessPercentile = openMindedness !== 0 ? (openMindedness / 15) * 100 : 0;
+    console.log("Open-Mindedness" + openMindedness);
     console.log("Extraversion Percentile: " + extraversionPercentile);
     console.log("Agreeableness Percentile: " + agreeablenessPercentile);
     console.log("Conscientiousness Percentile: " + conscientiousnessPercentile);
     console.log("Negative Emotionality Percentile: " + negativeEmotionalityPercentile);
     console.log("Open-Mindedness Percentile: " + openMindednessPercentile);
-    let scores : { [key: string]: number} = {};
-    scores["introversion"] = 100 - extraversionPercentile;
-    scores["agreeableness"] = agreeablenessPercentile;
-    scores["conscientiousness"] = conscientiousnessPercentile;
-    scores["neuroticism"] = negativeEmotionalityPercentile;
-    scores["openness"] = openMindednessPercentile;
-    setScores(scores);
+    let scores: { [key: string]: number } = {
+        introversion: 100 - extraversionPercentile,
+        agreeableness: agreeablenessPercentile,
+        conscientiousness: conscientiousnessPercentile,
+        neuroticism: negativeEmotionalityPercentile,
+        openness: openMindednessPercentile
+      };
+      return scores;
   };
 
   const handleSubmit = () => {
-    calculateScores();
+    const scores = calculateScores();
+    localStorage.setItem('personalityScores', JSON.stringify(scores));
     navigate('/valuetest');
   };
 

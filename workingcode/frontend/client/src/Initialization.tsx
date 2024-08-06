@@ -1,6 +1,12 @@
-import React, { useState, useEffect,  useContext } from 'react';
+import React, { useState, useEffect,  useContext, } from 'react';
 import { ScoresContext } from './ScoresContext.tsx';
 import styled from 'styled-components';
+import { useLocation } from 'react-router-dom';
+import { ConvexProvider, ConvexReactClient, useMutation} from "convex/react";
+import { api } from "/Users/xyuan/Documents/GitHub/AgentAvatar/workingcode/convex/_generated/api";
+
+const convex = new ConvexReactClient("https://tremendous-okapi-985.convex.cloud");
+
 
 const Container = styled.div`
   max-width: 800px;
@@ -125,242 +131,273 @@ interface SerializedAgent {
   basePersonalityInfo: BasePersonalityInfo;
 }
 
-const Initialization: React.FC = () => {
-  const [agentInfo, setAgentInfo] = useState<SerializedAgent>({
-    playerId: '',
-    worldId: '',
-    playerName: '',
-    baseKnowledgeInfo: {
-      age: 0,
-      gender: '',
-      ethnicity: '',
-      selfDescription: '',
-    },
-    baseSkillsInfo: {
-      skills: [],
-    },
-    basePersonalityInfo: {
-      introversion: 0,
-      openness: 0,
-      conscientiousness: 0,
-      agreeableness: 0,
-      neuroticism: 0,
-      conformity: 0,
-      tradition: 0,
-      benevolence: 0,
-      universalism: 0,
-      selfdirection: 0,
-      stimulation: 0,
-      hedonism: 0,
-      achievement: 0,
-      power: 0,
-      security: 0,
-      interests: [],
-    },
-  });
+const Initialization = () => {
+    useEffect(() => {
+        const savedValueScores = localStorage.getItem('valueScores');
+        if (savedValueScores) {
+          const valueScores = JSON.parse(savedValueScores);
+          console.log(valueScores);
+          setAgentInfo(prev => ({
+            ...prev,
+            basePersonalityInfo: {
+              ...prev.basePersonalityInfo,
+              ...valueScores,
+            },
+          }));
+        }
+      }, []);
 
-  const scores = useContext(ScoresContext);
+      useEffect(() => {
+        const savedValueScores = localStorage.getItem('personalityScores');
+        if (savedValueScores) {
+          const personalityScores = JSON.parse(savedValueScores);
+          console.log(personalityScores);
+          setAgentInfo(prev => ({
+            ...prev,
+            basePersonalityInfo: {
+              ...prev.basePersonalityInfo,
+              ...personalityScores,
+            },
+          }));
+        }
+      }, []);
 
-  useEffect(() => {
-    const fetchedPersonality = {
-        introversion: (scores as any).introversion, 
-        openness: (scores as any).openness,
-        conscientiousness: (scores as any).conscientiousness,
-        agreeableness: (scores as any).agreeableness,
-        neuroticism: (scores as any).neuroticism,
+
+    
+    const [agentInfo, setAgentInfo] = useState({
+      playerId: '',
+      worldId: '',
+      playerName: '',
+      baseKnowledgeInfo: {
+        age: 0,
+        gender: '',
+        ethnicity: '',
+        selfDescription: '',
+      },
+      baseSkillsInfo: {
+        skills: [],
+      },
+      basePersonalityInfo: {
+        introversion: 0,
+        agreeableness: 0,
+        conscientiousness: 0,
+        neuroticism: 0,
+        openness: 0,
+        conformity: 0, 
+        tradition: 0,
+        benevolence: 0,
+        universalism: 0,
+        selfdirection: 0,
+        stimulation: 0, 
+        hedonism: 0, 
+        achievement: 0,
+        power: 0,
+        security: 0,
+        interests: [],
+      },
+    });
+  
+  
+    const handleInputChange = (e) => {
+      const { name, value } = e.target;
+      setAgentInfo(prev => ({
+        ...prev,
+        [name]: value,
+      }));
     };
-    const fetchedValues = {
-        conformity: (scores as any).conformity,
-        tradition: (scores as any).tradition,
-        benevolence: (scores as any).benevolence,
-        universalism: (scores as any).universalism,
-        selfdirection: (scores as any).selfDirection,
-        stimulation: (scores as any).stimulation,
-        hedonism: (scores as any).hedonism,
-        achievement: (scores as any).achievement,
-        power: (scores as any).power,
-        security: (scores as any).security
-    };
-  }, []);
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setAgentInfo(prev => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
-  const handleKnowledgeInfoChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setAgentInfo(prev => ({
+  
+    const handleKnowledgeInfoChange = (e) => {
+      const { name, value } = e.target;
+      setAgentInfo(prev => ({
         ...prev,
         baseKnowledgeInfo: {
-            ...prev.baseKnowledgeInfo,
-            [name]: name === 'age' ? parseInt(value) : value,
+          ...prev.baseKnowledgeInfo,
+          [name]: name === 'age' ? parseInt(value) : value,
         },
-    }));
-};
+      }));
+    };
+  
+    const handleSkillsChange = (e) => {
+      const skills = e.target.value.split(',').map(skill => skill.trim());
+      setAgentInfo(prev => ({
+        ...prev,
+        baseSkillsInfo: {
+          ...prev.baseSkillsInfo,
+          skills,
+        },
+      }));
+    };
+  
+    const handleInterestsChange = (e) => {
+      const interests = e.target.value.split(',').map(interest => interest.trim());
+      setAgentInfo(prev => ({
+        ...prev,
+        basePersonalityInfo: {
+          ...prev.basePersonalityInfo,
+          interests,
+        },
+      }));
+    };
 
+    const UseAgentInitialization = () => {
+        const initializeAgentsFunction = useMutation(api.Agent.agent.initializeAgents);
+      
+        const initializeAgents = async (agentInfo) => {
+          try {
+            const taskId = await initializeAgentsFunction({ agentData: agentInfo });
+            return taskId;
+          } catch (error) {
+            console.error('Error initializing agents:', error);
+            return null;
+          }
+        };
+      
+        return { initializeAgents };
+      };
+  
+    const { initializeAgents } = UseAgentInitialization();
+
+    const handleSubmit = async (e) => {
+      e.preventDefault();
+      try {
+        const taskId = await initializeAgents(agentInfo);
+      } catch (error) {
+        console.error('Error initializing agents:', error);
+      }
+    };
+  
+    return (
+        <Container>
+            
+        <form onSubmit={handleSubmit}>
+        <Title>Agent Information</Title>
+        <QuestionContainer>
+          <div>
+            <label htmlFor="playerName">Player Name:</label>
+            <Input
+              type="text"
+              id="playerName"
+              name="playerName"
+              value={agentInfo.playerName}
+              onChange={handleInputChange}
+              required
+            />
+          </div>
     
-  const handleSkillsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const skills = e.target.value.split(',').map(skill => skill.trim());
-    setAgentInfo(prev => ({
-      ...prev,
-      baseSkillsInfo: {
-        ...prev.baseSkillsInfo,
-        skills,
-      },
-    }));
-  };
-
-  const handleInterestsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const interests = e.target.value.split(',').map(interest => interest.trim());
-    setAgentInfo(prev => ({
-      ...prev,
-      basePersonalityInfo: {
-        ...prev.basePersonalityInfo,
-        interests,
-      },
-    }));
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log('Submitted Agent Info:', agentInfo);
-  };
-
-  return (
-    <Container>
+          <h3>Base Knowledge Info</h3>
+          <div>
+            <label htmlFor="age">Age:</label>
+            <Input
+              type="number"
+              id="age"
+              name="age"
+              value={agentInfo.baseKnowledgeInfo.age.toString()} // Convert age to string
+              onChange={handleKnowledgeInfoChange as any}
+              required
+            />
+          </div>
+          <div>
+            <label htmlFor="gender">Gender:</label>
+            <Select
+              id="gender"
+              name="gender"
+              value={agentInfo.baseKnowledgeInfo.gender}
+              onChange={handleKnowledgeInfoChange}
+              required
+            >
+              <option value="">Select Gender</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+              <option value="NonBinary">Non-Binary</option>
+            </Select>
+          </div>
+          <div>
+            <label htmlFor="ethnicity">Ethnicity:</label>
+            <Select
+              id="ethnicity"
+              name="ethnicity"
+              value={agentInfo.baseKnowledgeInfo.ethnicity}
+              onChange={handleKnowledgeInfoChange}
+              required
+            >
+              <option value="">Select Ethnicity</option>
+              <option value="Asian">Asian</option>
+              <option value="Black">Black</option>
+              <option value="Hispanic">Hispanic</option>
+              <option value="White">White</option>
+              <option value="Native American">Native American</option>
+              <option value="Pacific Islander">Pacific Islander</option>
+              <option value="Middle Eastern">Middle Eastern</option>
+              <option value="Mixed">Mixed</option>
+              <option value="Other">Other</option>
+            </Select>
+          </div>
+          <div>
+            <label htmlFor="selfDescription">Self Description:</label>
+            <Textarea
+              id="selfDescription"
+              name="selfDescription"
+              value={agentInfo.baseKnowledgeInfo.selfDescription}
+              onChange={handleKnowledgeInfoChange}
+              required
+            />
+          </div>
+    
+          <h3>Skills</h3>
+          <div>
+            <label htmlFor="skills">Skills (comma-separated):</label>
+            <Input
+              type="text"
+              id="skills"
+              name="skills"
+              value={agentInfo.baseSkillsInfo.skills.join(', ')}
+              onChange={handleSkillsChange}
+              required
+            />
+          </div>
+    
+          <h3>Interests</h3>
+          <div>
+            <label htmlFor="interests">Interests (comma-separated):</label>
+            <Input
+              type="text"
+              id="interests"
+              name="interests"
+              value={agentInfo.basePersonalityInfo.interests.join(', ')}
+              onChange={handleInterestsChange}
+              required
+            />
+          </div>
+    
+          <h3>Personality (Auto-filled from previous test)</h3>
+          <div>
+            <p>Introversion: {agentInfo.basePersonalityInfo.introversion}</p>
+            <p>Openness: {agentInfo.basePersonalityInfo.openness}</p>
+            <p>Conscientiousness: {agentInfo.basePersonalityInfo.conscientiousness}</p>
+            <p>Agreeableness: {agentInfo.basePersonalityInfo.agreeableness}</p>
+            <p>Neuroticism: {agentInfo.basePersonalityInfo.neuroticism}</p>
+          </div>
+    
+          <h3>Personality (Auto-filled from previous test)</h3>
+          <div>
+            <p>Conformity: {agentInfo.basePersonalityInfo.conformity}</p>
+            <p>Tradition: {agentInfo.basePersonalityInfo.tradition}</p>
+            <p>Benevolence: {agentInfo.basePersonalityInfo.benevolence}</p>
+            <p>Universalism: {agentInfo.basePersonalityInfo.universalism}</p>
+            <p>Self-Direction: {agentInfo.basePersonalityInfo.selfdirection}</p>
+            <p>Stimulation: {agentInfo.basePersonalityInfo.stimulation}</p>
+            <p>Hedonism: {agentInfo.basePersonalityInfo.hedonism}</p>
+            <p>Achievement: {agentInfo.basePersonalityInfo.achievement}</p>
+            <p>Power: {agentInfo.basePersonalityInfo.power}</p>
+            <p>Security: {agentInfo.basePersonalityInfo.security}</p>
+          </div>
         
-    <form onSubmit={handleSubmit}>
-    <Title>Agent Information</Title>
-    <QuestionContainer>
-      <div>
-        <label htmlFor="playerName">Player Name:</label>
-        <Input
-          type="text"
-          id="playerName"
-          name="playerName"
-          value={agentInfo.playerName}
-          onChange={handleInputChange}
-          required
-        />
-      </div>
-
-      <h3>Base Knowledge Info</h3>
-      <div>
-        <label htmlFor="age">Age:</label>
-        <Input
-          type="number"
-          id="age"
-          name="age"
-          value={agentInfo.baseKnowledgeInfo.age.toString()} // Convert age to string
-          onChange={handleKnowledgeInfoChange as any}
-          required
-        />
-      </div>
-      <div>
-        <label htmlFor="gender">Gender:</label>
-        <Select
-          id="gender"
-          name="gender"
-          value={agentInfo.baseKnowledgeInfo.gender}
-          onChange={handleKnowledgeInfoChange}
-          required
-        >
-          <option value="">Select Gender</option>
-          <option value="Male">Male</option>
-          <option value="Female">Female</option>
-          <option value="NonBinary">Non-Binary</option>
-        </Select>
-      </div>
-      <div>
-        <label htmlFor="ethnicity">Ethnicity:</label>
-        <Select
-          id="ethnicity"
-          name="ethnicity"
-          value={agentInfo.baseKnowledgeInfo.ethnicity}
-          onChange={handleKnowledgeInfoChange}
-          required
-        >
-          <option value="">Select Ethnicity</option>
-          <option value="Asian">Asian</option>
-          <option value="Black">Black</option>
-          <option value="Hispanic">Hispanic</option>
-          <option value="White">White</option>
-          <option value="Native American">Native American</option>
-          <option value="Pacific Islander">Pacific Islander</option>
-          <option value="Middle Eastern">Middle Eastern</option>
-          <option value="Mixed">Mixed</option>
-          <option value="Other">Other</option>
-        </Select>
-      </div>
-      <div>
-        <label htmlFor="selfDescription">Self Description:</label>
-        <Textarea
-          id="selfDescription"
-          name="selfDescription"
-          value={agentInfo.baseKnowledgeInfo.selfDescription}
-          onChange={handleKnowledgeInfoChange}
-          required
-        />
-      </div>
-
-      <h3>Skills</h3>
-      <div>
-        <label htmlFor="skills">Skills (comma-separated):</label>
-        <Input
-          type="text"
-          id="skills"
-          name="skills"
-          value={agentInfo.baseSkillsInfo.skills.join(', ')}
-          onChange={handleSkillsChange}
-          required
-        />
-      </div>
-
-      <h3>Interests</h3>
-      <div>
-        <label htmlFor="interests">Interests (comma-separated):</label>
-        <Input
-          type="text"
-          id="interests"
-          name="interests"
-          value={agentInfo.basePersonalityInfo.interests.join(', ')}
-          onChange={handleInterestsChange}
-          required
-        />
-      </div>
-
-      <h3>Personality (Auto-filled from previous test)</h3>
-      <div>
-        <p>Introversion: {(scores as any).introversion}</p>
-        <p>Openness: {(scores as any).openness}</p>
-        <p>Conscientiousness: {(scores as any).conscientiousness}</p>
-        <p>Agreeableness: {(scores as any).agreeableness}</p>
-        <p>Neuroticism: {(scores as any).neuroticism}</p>
-      </div>
-
-      <h3>Personality (Auto-filled from previous test)</h3>
-      <div>
-        <p>Conformity: {(scores as any).conformity}</p>
-        <p>Tradition: {(scores as any).tradition}</p>
-        <p>Benevolence: {(scores as any).benevolence}</p>
-        <p>Universalism: {(scores as any).universalism}</p>
-        <p>Self-Direction: {(scores as any).selfdirection}</p>
-        <p>Stimulation: {(scores as any).stimulation}</p>
-        <p>Hedonism: {(scores as any).hedonism}</p>
-        <p>Achievement: {(scores as any).achievement}</p>
-        <p>Power: {(scores as any).power}</p>
-        <p>Security: {(scores as any).security}</p>
-      </div>
+          </QuestionContainer>
+          <SubmitButton onClick={handleSubmit}>Submit</SubmitButton>
+        </form>
+        </Container>
+      );
+    };
     
-      </QuestionContainer>
-      <SubmitButton onClick={handleSubmit}>Submit</SubmitButton>
-    </form>
-    </Container>
-  );
-};
-
-export default Initialization;
+  
+  export default Initialization;
