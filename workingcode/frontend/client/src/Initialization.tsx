@@ -3,7 +3,7 @@ import { ScoresContext } from './ScoresContext.tsx';
 import styled from 'styled-components';
 import { useLocation } from 'react-router-dom';
 import { ConvexProvider, ConvexReactClient, useMutation} from "convex/react";
-import { api } from "/Users/xyuan/Documents/GitHub/AgentAvatar/workingcode/convex/_generated/api";
+import { api } from 'backendapi';
 
 const convex = new ConvexReactClient("https://tremendous-okapi-985.convex.cloud");
 
@@ -165,8 +165,8 @@ const Initialization = () => {
 
     
     const [agentInfo, setAgentInfo] = useState({
-      playerId: '',
-      worldId: '',
+      playerId: 'p:5',
+      worldId: 'w:2',
       playerName: '',
       baseKnowledgeInfo: {
         age: 0,
