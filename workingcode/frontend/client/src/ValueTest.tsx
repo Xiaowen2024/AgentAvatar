@@ -1,7 +1,7 @@
 import React, { useState, useContext } from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
-import { ScoresContext } from "./ScoresContext.tsx";
+import { ScoresContext } from "./ScoresContext";
 import { useLocation } from 'react-router-dom';
 
 const valueQuestions = [

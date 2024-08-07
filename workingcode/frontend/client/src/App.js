@@ -5,7 +5,10 @@ import PersonalityTest from './PersonalityTest.tsx';
 import Onboarding from './Onboarding.tsx';
 import ValueTest from './ValueTest.tsx';
 import Initialization from './Initialization.tsx';
+import UpdatePage from './AgentUpdates.tsx';
+import ChatStage from './ChatStage.tsx';
 import './App.css';
+
 
 
 const convex = new ConvexReactClient("https://tremendous-okapi-985.convex.cloud");
@@ -19,6 +22,8 @@ const App = () => {
           <Route path="/personalitytest" element={<PersonalityTest />} />
           <Route path="/valuetest" element={<ValueTest />} />
           <Route path="/initialization" element={<Initialization />} />
+          <Route path="/update" element={<UpdatePage />} />
+          <Route path="/chat" element={<ChatStage />} />
         </Routes>
       </div>
     </Router>

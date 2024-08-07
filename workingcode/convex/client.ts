@@ -1,7 +1,7 @@
 import { ConvexHttpClient } from "convex/browser";
 import { api } from "./_generated/api.js";
 import * as dotenv from "dotenv";
-import { testConvo } from "./tests/testConversations.js";
+
 import { action, httpAction } from "./_generated/server";
 import { useAction } from "convex/react";
 import { ConvexClient } from "convex/browser";

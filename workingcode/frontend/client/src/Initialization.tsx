@@ -1,9 +1,10 @@
 import React, { useState, useEffect,  useContext, } from 'react';
 import { ScoresContext } from './ScoresContext.tsx';
 import styled from 'styled-components';
-import { useLocation } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 import { ConvexProvider, ConvexReactClient, useMutation} from "convex/react";
 import { api } from 'backendapi';
+import { useNavigate } from 'react-router-dom';
 
 const convex = new ConvexReactClient("https://tremendous-okapi-985.convex.cloud");
 
@@ -132,6 +133,7 @@ interface SerializedAgent {
 }
 
 const Initialization = () => {
+    const navigate = useNavigate();
     useEffect(() => {
         const savedValueScores = localStorage.getItem('valueScores');
         if (savedValueScores) {
@@ -261,9 +263,11 @@ const Initialization = () => {
       e.preventDefault();
       try {
         const taskId = await initializeAgents(agentInfo);
+        console.log()
       } catch (error) {
         console.error('Error initializing agents:', error);
       }
+      navigate('/update');
     };
   
     return (

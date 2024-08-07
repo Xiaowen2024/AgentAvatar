@@ -204,7 +204,6 @@ export class Agent {
     //     started: time as number,
     //     };
     // }
-
 }; 
 
 export type SerializedAgent = ObjectType<typeof serializedAgent>;
