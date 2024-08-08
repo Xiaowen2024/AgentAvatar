@@ -1,9 +1,8 @@
-import React, { useState, useEffect,  useContext, } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import styled from 'styled-components';
 import { useLocation } from 'react-router-dom';
-import { ConvexProvider, ConvexReactClient, useMutation} from "convex/react";
+import { ConvexProvider, ConvexReactClient, useMutation } from "convex/react";
 import { api } from 'backendapi';
-
 
 const convex = new ConvexReactClient("https://tremendous-okapi-985.convex.cloud");
 

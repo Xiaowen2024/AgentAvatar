@@ -6,7 +6,8 @@ import Onboarding from './Onboarding.tsx';
 import ValueTest from './ValueTest.tsx';
 import Initialization from './Initialization.tsx';
 import UpdatePage from './AgentUpdates.tsx';
-import ChatStage from './ChatStage.tsx';
+import Chat from './ChatStage.tsx';
+import JournalEntry from './JournalEntry.tsx';
 import './App.css';
 
 
@@ -23,7 +24,8 @@ const App = () => {
           <Route path="/valuetest" element={<ValueTest />} />
           <Route path="/initialization" element={<Initialization />} />
           <Route path="/update" element={<UpdatePage />} />
-          <Route path="/chat" element={<ChatStage />} />
+          {/* <Route path="/chat" element={<Chat />} /> */}
+          <Route path="/journal" element={<JournalEntry />} />
         </Routes>
       </div>
     </Router>
