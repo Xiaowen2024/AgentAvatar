@@ -8,6 +8,7 @@ import Initialization from './Initialization.tsx';
 import UpdatePage from './AgentUpdates.tsx';
 import Chat from './ChatStage.tsx';
 import JournalEntry from './JournalEntry.tsx';
+import PictureEntry from './PictureEntry.tsx';
 import './App.css';
 
 
@@ -26,6 +27,7 @@ const App = () => {
           <Route path="/update" element={<UpdatePage />} />
           {/* <Route path="/chat" element={<Chat />} /> */}
           <Route path="/journal" element={<JournalEntry />} />
+          <Route path="/picture" element={<PictureEntry />} />
         </Routes>
       </div>
     </Router>
